@@ -38,35 +38,35 @@ class Data:
 
 	def __init__(self):
 		## PDZ Domains 
-        temp_df = pd.read_excel('Data_PDZ/theta_data.xlsx')
-        self.aminoacids = [acid.encode('utf-8') for acid in list(temp_df.columns[:20])]
-        self.df = temp_df.T
-        self.domains = [Domain(domain.encode('utf-8')) for domain in list(self.df.columns)]
-        self.domain_names = [domain.name for domain in self.domains]
-        ### Peptide sequences
-        self.pep_seqs = []
-        self.pep_names = []
-        with open('Data_PDZ/peptides.free') as f:
-            for line in f:
-                x = line.split()
-                self.pep_seqs.append(x[1])
-                self.pep_names.append(x[0])
-        self.peptides = [Peptide(name) for name in self.pep_names]
+		temp_df = pd.read_excel('Data_PDZ/theta_data.xlsx')
+		self.aminoacids = [acid.encode('utf-8') for acid in list(temp_df.columns[:20])]
+		self.df = temp_df.T
+		self.domains = [Domain(domain.encode('utf-8')) for domain in list(self.df.columns)]
+		self.domain_names = [domain.name for domain in self.domains]
+		### Peptide sequences
+		self.pep_seqs = []
+		self.pep_names = []
+		with open('Data_PDZ/peptides.free') as f:
+			for line in f:
+				x = line.split()
+				self.pep_seqs.append(x[1])
+				self.pep_names.append(x[0])
+		self.peptides = [Peptide(name) for name in self.pep_names]
 
-    def create_domains(self):
-    	for domain in self.domains:
-    		domain.thetas = self.df[domain.name][:100]
-    		domain.thresholds = np.asarray(self.df[domain.name][100:])
-    		domain.thetas = np.asarray(domain.thetas)
-    		domain.thetas = domain.thetas.reshape(5,20)
+	def create_domains(self):
+		for domain in self.domains:
+			domain.thetas = self.df[domain.name][:100]
+			domain.thresholds = np.asarray(self.df[domain.name][100:])
+			domain.thetas = np.asarray(domain.thetas)
+			domain.thetas = domain.thetas.reshape(5,20)
 
-    def create_peptide(self):
-    	for i in range(len(self.pep_seqs)):
-    		self.peptides[i].sequence = self.pep_seqs[i]
-    		self.peptides[i].sequence_bis = list(self.pep_seqs[i])[5:]
+	def create_peptide(self):
+		for i in range(len(self.pep_seqs)):
+			self.peptides[i].sequence = self.pep_seqs[i]
+			self.peptides[i].sequence_bis = list(self.pep_seqs[i])[5:]
 
-    def load_data(self):
-    	self.create_domains()
-    	self.create_peptide()
-    
+	def load_data(self):
+		self.create_domains()
+		self.create_peptide()
+
 
