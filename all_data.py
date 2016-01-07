@@ -13,7 +13,7 @@ class Domain:
 	Holds stuff relevant to the domains
 	"""
 
-	def __init___(self, name):
+	def __init__(self, name):
 		self.name = name 
 		self.thresholds = None
 		self.thetas = None 
@@ -30,6 +30,11 @@ class Peptide:
 		self.sequence_bis = None ## Last five amino acids 
 		self.energy_ground = None ## Useful for previous simulations
 		self.score = None ## Score calculated from Stiffler model
+		self.y_manip_bind = 0.0
+		self.y_manip_nbind = 0.0
+		self.y_model_bind = 0.0
+		self.y_model_nbind = 0.0
+		self.posterior_matrix = None
 
 class Data:
 	"""
@@ -38,7 +43,7 @@ class Data:
 
 	def __init__(self):
 		## PDZ Domains 
-		temp_df = pd.read_excel('Data_PDZ/theta_data.xlsx')
+		temp_df = pd.read_excel(DATA+'\\theta_data.xlsx')
 		self.aminoacids = [acid.encode('utf-8') for acid in list(temp_df.columns[:20])]
 		self.df = temp_df.T
 		self.domains = [Domain(domain.encode('utf-8')) for domain in list(self.df.columns)]
@@ -46,12 +51,25 @@ class Data:
 		### Peptide sequences
 		self.pep_seqs = []
 		self.pep_names = []
-		with open('Data_PDZ/peptides.free') as f:
+		with open(DATA+'\\peptides.free') as f:
 			for line in f:
 				x = line.split()
 				self.pep_seqs.append(x[1])
 				self.pep_names.append(x[0])
 		self.peptides = [Peptide(name) for name in self.pep_names]
+
+		## Interaction: Which peptides bind to which domains 
+		self.fp_interaction_matrix = pd.read_excel(DATA+"\\fp_interaction_matrix.xlsx")
+		for column in self.fp_interaction_matrix.columns:
+			self.fp_interaction_matrix.loc[self.fp_interaction_matrix[column] == 0.0, column] = -1.0
+		self.fp_interaction_matrix = self.fp_interaction_matrix.rename(columns = lambda x: str(x).replace(" ", ""))
+
+		## Classification matrix 
+		self.class_matrix = np.zeros((2,2))
+		self.class_matrix[0,0] = 0.85
+		self.class_matrix[0,1] = 0.04
+		self.class_matrix[1,0] = 0.15
+		self.class_matrix[1,1] = 0.96
 
 	def create_domains(self):
 		for domain in self.domains:
@@ -65,8 +83,62 @@ class Data:
 			self.peptides[i].sequence = self.pep_seqs[i]
 			self.peptides[i].sequence_bis = list(self.pep_seqs[i])[5:]
 
+	def calc_y_manip(self):
+		bind = 0.0
+		nbind = 0.0
+		for peptide in self.peptides:
+			peptide.y_manip_bind = 0.0
+			peptide.y_manip_nbind = 0.0
+			for i in range(len(self.domain_names)):
+				alpha = self.fp_interaction_matrix[peptide.name][i]
+				if alpha > 0:
+					peptide.y_manip_bind +=1
+				else:
+					peptide.y_manip_nbind +=1
+			bind += peptide.y_manip_bind
+			nbind += peptide.y_manip_nbind
+
+			peptide.y_manip_bind /=74
+			peptide.y_manip_nbind /=74
+
+			peptide.y_model_bind = self.class_matrix[1,1]*peptide.y_manip_bind + self.class_matrix[1,0]*peptide.y_manip_nbind
+			peptide.y_model_nbind = self.class_matrix[0,0]*peptide.y_manip_nbind + self.class_matrix[0,1]*peptide.y_manip_bind
+
+			peptide.posterior_matrix = np.zeros((2,2))
+
+			peptide.posterior_matrix[0,0] = self.class_matrix[0,0]*peptide.y_manip_nbind / peptide.y_model_nbind
+			peptide.posterior_matrix[1,0] = self.class_matrix[0,1]*peptide.y_manip_bind / peptide.y_model_nbind
+
+			peptide.posterior_matrix[0,1] = self.class_matrix[1,0]*peptide.y_manip_nbind / peptide.y_model_bind
+			peptide.posterior_matrix[1,1] = self.class_matrix[1,1]*peptide.y_manip_bind / peptide.y_model_bind
+
+		self.y_manip_bind = bind/np.size(self.fp_interaction_matrix)
+		self.y_manip_nbind = nbind/np.size(self.fp_interaction_matrix)
+
+		self.y_model_bind = self.class_matrix[1,1]*self.y_manip_bind + self.class_matrix[1,0]*self.y_manip_nbind
+
+		self.y_model_nbind = self.class_matrix[0,0]*self.y_manip_nbind + self.class_matrix[0,1]*self.y_manip_bind
+
+
+		## Posterior probability matrix 
+
+		self.posterior_matrix = np.zeros((2,2))
+		## P(y_manip|y_model) = P(y_model|y_manip)*P(y_manip) / P(y_model)
+		## P(manip=-1|model=-1) = P(model=-1|manip=-1) * P(manip=-1) /P(model=-1)
+		self.posterior_matrix[0,0] = self.class_matrix[0,0]*self.y_manip_nbind / self.y_model_nbind
+		## P(manip=1|model=-1) = P(model=-1|manip=1) * P(manip=1) /P(model=-1)
+		self.posterior_matrix[1,0] = self.class_matrix[0,1]*self.y_manip_bind / self.y_model_nbind
+		## P(manip=-1|model=1) = P(model=1|manip=-1) * P(manip=-1) /P(model=1)
+		self.posterior_matrix[0,1] = self.class_matrix[1,0]*self.y_manip_nbind / self.y_model_bind
+		## P(manip=1|model=1) = P(model=1|manip=1) * P(manip=1) /P(model=1)
+		self.posterior_matrix[1,1] = self.class_matrix[1,1]*self.y_manip_bind / self.y_model_bind
+			
+
 	def load_data(self):
 		self.create_domains()
 		self.create_peptide()
+		self.calc_y_manip()
+
+
 
 
