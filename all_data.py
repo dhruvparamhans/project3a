@@ -1,12 +1,12 @@
 """
-This script functions and classes that I need to declare every time I run the simulations. It is more convenient to use the python notebook for demonstration purposes, and keep the code here 
+This script functions and classes that I need to declare every time I run the simulations. It is more convenient to use the python notebook for demonstration purposes, and keep the code here
 """
 
 
 ROOT = 'E:\\Ecole\\Year 3\\Projet 3A'
 DATA = ROOT+'\Data_PDZ'
-import pandas as pd 
-import numpy as np 
+import pandas as pd
+import numpy as np
 
 class Domain:
 	"""
@@ -14,9 +14,9 @@ class Domain:
 	"""
 
 	def __init__(self, name):
-		self.name = name 
+		self.name = name
 		self.thresholds = None
-		self.thetas = None 
+		self.thetas = None
 
 
 class Peptide:
@@ -26,8 +26,8 @@ class Peptide:
 
 	def __init__(self, name):
 		self.name = name
-		self.sequence = None 
-		self.sequence_bis = None ## Last five amino acids 
+		self.sequence = None
+		self.sequence_bis = None ## Last five amino acids
 		self.energy_ground = None ## Useful for previous simulations
 		self.score = None ## Score calculated from Stiffler model
 		self.y_manip_bind = 0.0
@@ -42,7 +42,7 @@ class Data:
 	"""
 
 	def __init__(self):
-		## PDZ Domains 
+		## PDZ Domains
 		temp_df = pd.read_excel(DATA+'\\theta_data.xlsx')
 		self.aminoacids = [acid.encode('utf-8') for acid in list(temp_df.columns[:20])]
 		self.df = temp_df.T
@@ -58,13 +58,13 @@ class Data:
 				self.pep_names.append(x[0])
 		self.peptides = [Peptide(name) for name in self.pep_names]
 
-		## Interaction: Which peptides bind to which domains 
+		## Interaction: Which peptides bind to which domains
 		self.fp_interaction_matrix = pd.read_excel(DATA+"\\fp_interaction_matrix.xlsx")
 		for column in self.fp_interaction_matrix.columns:
 			self.fp_interaction_matrix.loc[self.fp_interaction_matrix[column] == 0.0, column] = -1.0
 		self.fp_interaction_matrix = self.fp_interaction_matrix.rename(columns = lambda x: str(x).replace(" ", ""))
 
-		## Classification matrix 
+		## Classification matrix
 		self.class_matrix = np.zeros((2,2))
 		self.class_matrix[0,0] = 0.85
 		self.class_matrix[0,1] = 0.04
@@ -77,6 +77,12 @@ class Data:
 			domain.thresholds = np.asarray(self.df[domain.name][100:])
 			domain.thetas = np.asarray(domain.thetas)
 			domain.thetas = domain.thetas.reshape(5,20)
+
+	def convert2seq(self,seq_int):
+	    return [self.aminoacids[i] for i in seq_int]
+
+	def convert2int(self,seq_pep):
+	    return [self.aminoacids/index(pep) for pep in seq_pep]
 
 	def create_peptide(self):
 		for i in range(len(self.pep_seqs)):
@@ -120,7 +126,7 @@ class Data:
 		self.y_model_nbind = self.class_matrix[0,0]*self.y_manip_nbind + self.class_matrix[0,1]*self.y_manip_bind
 
 
-		## Posterior probability matrix 
+		## Posterior probability matrix
 
 		self.posterior_matrix = np.zeros((2,2))
 		## P(y_manip|y_model) = P(y_model|y_manip)*P(y_manip) / P(y_model)
@@ -132,13 +138,20 @@ class Data:
 		self.posterior_matrix[0,1] = self.class_matrix[1,0]*self.y_manip_nbind / self.y_model_bind
 		## P(manip=1|model=1) = P(model=1|manip=1) * P(manip=1) /P(model=1)
 		self.posterior_matrix[1,1] = self.class_matrix[1,1]*self.y_manip_bind / self.y_model_bind
-			
+
+	def divide_peps(self):
+		self.binds = [peptide.y_manip_bind*74 for peptide in self.peptides]
+		from collections import OrderedDict
+	    self.peptide_dist = OrderedDict()
+	    for value in self.binds:
+	        self.peptide_dist[value] = []
+	    for peptide in self.peptides:
+	        x = peptide.y_manip_bind*74
+	        self.peptide_dist[x].append(peptide)
+	    return self.peptide_dist
 
 	def load_data(self):
 		self.create_domains()
 		self.create_peptide()
 		self.calc_y_manip()
-
-
-
-
+		self.divide_peps()
