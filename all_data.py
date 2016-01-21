@@ -51,6 +51,9 @@ class Data:
 		### Peptide sequences
 		self.pep_seqs = []
 		self.pep_names = []
+		self.acid_names = ['Glycine', 'Alanine', 'Valine', 'Leucine', 'Isoleucine', 'Methionine', 'Proline', 'Phenylalanine', 'Tryptophan', 'Serine', \
+		              'Threonine', 'Asparagine', 'Glutamine', 'Tyrosine', 'Cysteine', 'Lysine', 'Arginine', 'Histidine', 'Aspartate', 'Glutamate']
+		self.acid_dict = {self.aminoacids[i]:self.acid_names[i] for i in range(len(self.aminoacids))}
 		with open(DATA+'\\peptides.free') as f:
 			for line in f:
 				x = line.split()
@@ -90,7 +93,7 @@ class Data:
 		Function to convert letter sequences into integer sequences
 		Useful when doing Monte-carlo runs
 		"""
-		return [self.aminoacids/index(pep) for pep in seq_pep]
+		return [self.aminoacids.index(pep) for pep in seq_pep]
 
 	def create_peptide(self):
 		for i in range(len(self.pep_seqs)):
@@ -159,7 +162,7 @@ class Data:
 		binds to according to fp_interaction_matrix.
 
 		Once the simulations have been run, it will be useful to see the behavior
-		of peptides as a function of their binding number 
+		of peptides as a function of their binding number
 		"""
 		self.binds = [peptide.y_manip_bind*74 for peptide in self.peptides]
 		from collections import OrderedDict
@@ -169,7 +172,6 @@ class Data:
 		for peptide in self.peptides:
 			x = peptide.y_manip_bind*74
 			self.peptide_dist[x].append(peptide)
-		return self.peptide_dist
 
 	def load_data(self):
 		"""
@@ -178,4 +180,3 @@ class Data:
 		self.create_domains()
 		self.create_peptide()
 		self.calc_y_manip()
-		self.divide_peps()

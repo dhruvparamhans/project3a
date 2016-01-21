@@ -2,10 +2,14 @@
 
 import numpy as np
 from all_data import *
+import matplotlib.pyplot as plt
 ## Create the relevant objects
 
+print "Creating Data Object PDZ_Data"
 PDZ_Data = Data()
 PDZ_Data.load_data()
+
+print "PDZ_Data ready!"
 
 def eval_score(domain, sequence, pos = 0):
     """
@@ -58,6 +62,11 @@ def eval_log_energy(peptide,sequence):
         en += calc_log_proba_mod(peptide, domain, sequence)
     return en
 
+def calc_energy_ground():
+    for peptide in PDZ_Data.peptides:
+        peptide.energy_ground = eval_log_energy(peptide, PDZ_Data.convert2int(peptide.sequence_bis))
+
+
 def pair_quantities():
     """
     Function which computes relevant quantities for each peptide-domain pair
@@ -80,6 +89,69 @@ def pair_quantities():
             quant_list.append(manip_1)
             quant_list.append(manip_0)
         peptide.domain_data[domain.name] = quant_list
+
+def run_mc(nb_runs, peptide,beta = 1.0, nb_cycles=10, plot=False, verbose=True, print_reject = False):
+    sims = []
+    print "Name of Peptide {}".format(peptide.name)
+    print "Base Energy {}".format(peptide.energy_ground)
+    print "Base Sequence {}".format(peptide.sequence_bis)
+    base_seq = PDZ_Data.convert2int(peptide.sequence_bis)
+    peptide.mutations = []
+    for j in range (nb_cycles):
+        print "\n Cycle number : {}\n".format(j+1)
+        sim_results = []
+        mutated_sequences = []
+        mutated_energies = []
+        for_plot = []
+        sequences_accepted = []
+        mut_seq = base_seq
+        mut_energy = peptide.energy_ground
+        for i in range(nb_runs):
+            y = np.random.randint(5)
+            z = np.random.randint(19)
+            ## Remove if the amino acid change is the same as before
+            if z >= mut_seq[y]:
+                z = z+1
+            temp_seq = mut_seq[:]
+            #print "Last sequence seen {}".format(convert2seq(mut_seq))
+            temp_seq[y] = z
+            #print "Sequence after mutation {}\n".format(convert2seq(temp_seq))
+            temp_energy = eval_log_energy(peptide, temp_seq)
+            ratio = np.exp(-1.0*beta*(temp_energy-mut_energy))
+            prob_trans = min(1, ratio)
+            x = np.random.uniform()
+            if x < prob_trans:
+                mut_energy = temp_energy
+                mut_seq = temp_seq
+                if verbose:
+                    print "Run number: {}\n".format(i)
+                    print "Uniform {} Ratio {} Prob_Trans {} ".format(x,ratio,prob_trans)
+                    print "Accepted {} {} {} {} \n".format(temp_seq, temp_energy, PDZ_Data.convert2seq(temp_seq), PDZ_Data.convert2seq(mut_seq))
+                sim_results.append({'Sequence': temp_seq, 'Energy': temp_energy, 'Status': 'Accepted'})
+                for_plot.append(temp_energy)
+            else:
+                if verbose:
+                    if print_reject:
+                        print "Run number: {}\n".format(i)
+                        print "Uniform {} Ratio {} Prob_Trans {} ".format(x,ratio,prob_trans)
+                        print "Rejected {} {} {} {}\n".format(temp_seq, temp_energy, PDZ_Data.convert2seq(temp_seq), PDZ_Data.convert2seq(mut_seq))
+                sim_results.append({'Sequence': temp_seq, 'Energy': temp_energy, 'Status': 'Rejected'})
+
+                ##print "Rejected {} {}".format(temp_seq, temp_energy)
+            mutated_sequences.append(temp_seq)
+            mutated_energies.append(temp_energy)
+        peptide.mutations.append(sequences_accepted)
+        print "Lowest Energy {} Sequence {}\n".format(np.min(mutated_energies), PDZ_Data.convert2seq(mutated_sequences[np.argmin(mutated_energies)]))
+        if plot == True:
+            plt.figure(j)
+            plt.axhline(y = peptide.energy_ground, hold = None, c = 'r', linewidth=0.5)
+            if len(for_plot) == 1:
+                plt.axhline(y = for_plot[0], hold=None, c = 'b', linewidth = 1.5)
+            plt.plot(for_plot)
+            plt.show()
+        sims.append({'Results' : sim_results, 'Mutated sequences': mutated_sequences, 'Mutated Energies': mutated_energies})
+    peptide.sims = sims
+    print " Completed run for {}\n".format(peptide.name)
 
 ### Functions to be used once the simulations have been run
 def compute_unique_mut(peptide):
@@ -106,3 +178,22 @@ def compute_freq_matrix(pep):
 
 def compute_proba_pos(pep,pos):
     return 1-compute_freq_matrix(pep)[1][pos,convert2int(pep.sequence_bis)[pos]]
+
+def plot_freq_matrix(pep, normalized = True):
+    if normalized:
+        fm_normalized = compute_freq_matrix(pep)[1]
+    else:
+        fm_normalized = compute_freq_matrix(pep)[0]
+    print "Sequence of Peptide {}".format(pep.sequence_bis)
+    plt.figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+    plt.title("Frequency matrix for Peptide {}".format(pep.name))
+    plt.xticks(range(len(PDZ_Data.aminoacids)), PDZ_Data.aminoacids, fontsize=12)
+    plt.imshow(fm_normalized,interpolation='nearest', cmap = plt.cm.Blues)
+    plt.colorbar()
+
+def print_seq(pep):
+    """
+    Returns the sequence with the names of the amino acids
+    """
+    for acid in pep.sequence_bis:
+        print "{} {} ".format(acid,acid_dict[acid])
