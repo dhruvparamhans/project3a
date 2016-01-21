@@ -2,19 +2,21 @@
 
 import numpy as np
 from all_data import *
-
-
 ## Create the relevant objects
 
 PDZ_Data = Data()
 PDZ_Data.load_data()
 
 def eval_score(domain, sequence, pos = 0):
+    """
+    Function which evaluates the score using Stiffler model
+    """
     score = 0.0
     for i in range(5):
         score += domain.thetas[i,sequence[i]]
     return score - domain.thresholds[pos]
 
+### Some utility functions for doing math
 def sigmoid(x, a=1):
     return 1.0/(1+np.exp(-1.0*a*x))
 
@@ -25,6 +27,11 @@ def log_modified(x):
         return -x+ np.log(1+np.exp(x))
 
 def calc_log_proba_mod(peptide, domain, sequence):
+    """
+    Function which computes the log of the updated probability.
+    For numerical stability, the sum of the logs is computed as
+    log(exp(logA)+exp(logB)) which is just log(A+B)
+    """
     ix = PDZ_Data.domain_names.index(domain.name)
     alpha = PDZ_Data.fp_interaction_matrix[peptide.name][ix]
 
@@ -52,6 +59,9 @@ def eval_log_energy(peptide,sequence):
     return en
 
 def pair_quantities():
+    """
+    Function which computes relevant quantities for each peptide-domain pair
+    """
     for peptide in PDZ_Data.peptides:
         peptide.domain_data = {}
         for i in range(len(PDZ_Data.domain_names)):
@@ -70,7 +80,8 @@ def pair_quantities():
             quant_list.append(manip_1)
             quant_list.append(manip_0)
         peptide.domain_data[domain.name] = quant_list
-    
+
+### Functions to be used once the simulations have been run
 def compute_unique_mut(peptide):
     unique = []
     for run in peptide.mutations:

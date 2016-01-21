@@ -79,10 +79,18 @@ class Data:
 			domain.thetas = domain.thetas.reshape(5,20)
 
 	def convert2seq(self,seq_int):
-	    return [self.aminoacids[i] for i in seq_int]
+		"""
+		Function to convert integer sequences into letter sequences
+		Useful for visualization purposes
+		"""
+		return [self.aminoacids[i] for i in seq_int]
 
 	def convert2int(self,seq_pep):
-	    return [self.aminoacids/index(pep) for pep in seq_pep]
+		"""
+		Function to convert letter sequences into integer sequences
+		Useful when doing Monte-carlo runs
+		"""
+		return [self.aminoacids/index(pep) for pep in seq_pep]
 
 	def create_peptide(self):
 		for i in range(len(self.pep_seqs)):
@@ -90,6 +98,11 @@ class Data:
 			self.peptides[i].sequence_bis = list(self.pep_seqs[i])[5:]
 
 	def calc_y_manip(self):
+		"""
+		Calculate the binding probabilities using the updated probability rule.
+		The updated rule models the false positive and true positive rates as
+		probabilities and integrates them into the model.
+		"""
 		bind = 0.0
 		nbind = 0.0
 		for peptide in self.peptides:
@@ -140,17 +153,28 @@ class Data:
 		self.posterior_matrix[1,1] = self.class_matrix[1,1]*self.y_manip_bind / self.y_model_bind
 
 	def divide_peps(self):
+		"""
+		Function which divides the peptides according to their binding number.
+		The binding number for any peptide is the number of domains that it
+		binds to according to fp_interaction_matrix.
+
+		Once the simulations have been run, it will be useful to see the behavior
+		of peptides as a function of their binding number 
+		"""
 		self.binds = [peptide.y_manip_bind*74 for peptide in self.peptides]
 		from collections import OrderedDict
-	    self.peptide_dist = OrderedDict()
-	    for value in self.binds:
-	        self.peptide_dist[value] = []
-	    for peptide in self.peptides:
-	        x = peptide.y_manip_bind*74
-	        self.peptide_dist[x].append(peptide)
-	    return self.peptide_dist
+		self.peptide_dist = OrderedDict()
+		for value in self.binds:
+			self.peptide_dist[value] = []
+		for peptide in self.peptides:
+			x = peptide.y_manip_bind*74
+			self.peptide_dist[x].append(peptide)
+		return self.peptide_dist
 
 	def load_data(self):
+		"""
+		Function which loads the relevant data to start performing analysis
+		"""
 		self.create_domains()
 		self.create_peptide()
 		self.calc_y_manip()
