@@ -174,6 +174,8 @@ def compute_freq_matrix(pep):
         for i in range(5):
             freq_matrix[i,mut[i]] += 1
     freq_matrix_normalized = freq_matrix.astype('float') / freq_matrix.sum(axis=1)[:, np.newaxis]
+    pep.freq_matrix = freq_matrix
+    pep.freq_matrix_normalized = freq_matrix_normalized
     return [freq_matrix, freq_matrix_normalized]
 
 def compute_proba_pos(pep,pos):
@@ -214,3 +216,34 @@ def compute_entropy_sequence(peptide):
         entropy_sequence.append(w)
     peptide.entropy_sequence = entropy_sequence
     return entropy_sequence
+
+def compute_coincidence_count(peptide, acid_a, acid_b, pos_i, pos_j):
+    count = 0
+    sequences_accepted = []
+    for i in range(len(peptide.sims)):
+        temp = peptide.sims[i]['Results']
+        for j in range(len(temp)):
+            if temp[j]['Status'] == 'Accepted':
+                sequences_accepted.append(temp[j]['Sequence'])
+    for sequence in sequences_accepted:
+        if (sequence[pos_i] == acid_a) & (sequence[pos_j] == acid_b):
+            count +=1
+    return count
+
+def compute_mutual_information(peptide):
+    mutual_information = np.zeros((5,5))
+    for pos_i in range(5):
+        for pos_j in range(5):
+            count = 0
+            for a in range(20):
+                for b in range(20):
+                    joint_count = compute_coincidence_count(peptide,a,b,pos_i,pos_j)
+                    if (joint_count == 0) | (peptide.freq_matrix[pos_i, a] == 0) | (peptide.freq_matrix[pos_j,b] == 0):
+                        count += 0
+                    else:
+                        x1 = np.log(joint_count) / np.log(20)
+                        x2 = np.log(peptide.freq_matrix[pos_i, a]) / np.log(20)
+                        x3 = np.log(peptide.freq_matrix[pos_j,b]) / np.log(20)
+                        count += joint_count * (x1 - x2 - x3)
+            mutual_information[pos_i, pos_j] = -1.0*count
+    return mutual_information
