@@ -14,4 +14,6 @@ print test_peptide.energy_ground
 for peptide in PDZ_Data.peptide_dist[bn]:
     print "{} {}".format(peptide.name, peptide.sequence_bis)
 
-run_mc(100, test_peptide, beta = 1.0, nb_cycles = 1, plot = True)
+run_mc(100, test_peptide, beta = 1.01, nb_cycles = 5, plot = True)
+
+print compute_entropy_sequence(test_peptide)

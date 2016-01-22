@@ -166,10 +166,10 @@ def compute_freq_matrix(pep):
     freq_matrix = np.zeros((5,20))
     accepted = []
     for i in range(len(pep.sims)):
-        temp1 = pep.sims[i]['Results']
-        for j in range(len(temp1)):
+        temp = pep.sims[i]['Results']
+        for j in range(len(temp)):
             if temp[j]['Status'] == 'Accepted':
-                accepted.append(temp1[j]['Sequence'])
+                accepted.append(temp[j]['Sequence'])
     for mut in accepted:
         for i in range(5):
             freq_matrix[i,mut[i]] += 1
@@ -190,6 +190,7 @@ def plot_freq_matrix(pep, normalized = True):
     plt.xticks(range(len(PDZ_Data.aminoacids)), PDZ_Data.aminoacids, fontsize=12)
     plt.imshow(fm_normalized,interpolation='nearest', cmap = plt.cm.Blues)
     plt.colorbar()
+    plt.show()
 
 def print_seq(pep):
     """
@@ -197,3 +198,19 @@ def print_seq(pep):
     """
     for acid in pep.sequence_bis:
         print "{} {} ".format(acid,acid_dict[acid])
+
+def compute_entropy_sequence(peptide):
+    test_matrix = compute_freq_matrix(peptide)[1]
+    entropy_sequence = []
+    x, y = test_matrix.shape
+    for i in range(x):
+        w = 0.0
+        for j in range(y):
+            if test_matrix[i][j] == 0:
+                w +=0
+            else:
+                w += test_matrix[i][j] * np.log(test_matrix[i][j])
+        w = -1.0*w
+        entropy_sequence.append(w)
+    peptide.entropy_sequence = entropy_sequence
+    return entropy_sequence
