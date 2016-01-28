@@ -201,6 +201,20 @@ def print_seq(pep):
     for acid in pep.sequence_bis:
         print "{} {} ".format(acid,acid_dict[acid])
 
+def compute_accepted_sequences(peptide):
+    """
+    Computes the list of all the sequences which were
+    accepted during the monte-carlo run over all cycles
+    Utility function for calculating joint probability distribution
+    """
+    sequences_accepted = []
+    for i in range(len(peptide.sims)):
+        temp = peptide.sims[i]['Results']
+        for j in range(len(temp)):
+            if temp[j]['Status'] == 'Accepted':
+                sequences_accepted.append(temp[j]['Sequence'])
+    return sequences_accepted
+## Need to edit the calculation for the entropy
 def compute_entropy_sequence(peptide):
     test_matrix = compute_freq_matrix(peptide)[1]
     entropy_sequence = []
