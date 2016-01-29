@@ -281,3 +281,19 @@ def correlation(peptide, pos_i, pos_j):
     return correlation_matrix
 
 
+def most_probable_sequence(peptide):
+    freq_matrix = compute_freq_matrix(peptide)[1]
+    probable_sequence = []
+    for i in range(5):
+        probable_sequence.append(np.argmax(freq_matrix[i]))
+    return probable_sequence, PDZ_Data.convert2seq(probable_sequence)
+    
+def distance_hamming(seq1, seq2):
+    dist = 0
+    assert len(seq1) == len(seq2)
+    for i in range(len(seq1)):
+        if seq1[i] != seq2[i]:
+            dist+=1
+    return dist
+
+
