@@ -15,7 +15,7 @@ class Domain:
 	Will eventually contain sequences as well
 	""" 
 
-	def __init__(self):
+	def __init__(self, name):
 		self.name = name 
 		self.thetas = None 
 		self.thresholds = None 
