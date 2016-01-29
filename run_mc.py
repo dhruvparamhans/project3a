@@ -3,6 +3,7 @@
 import numpy as np
 from all_data import *
 import matplotlib.pyplot as plt
+import itertools
 ## Create the relevant objects
 
 print "Creating Data Object PDZ_Data"
@@ -244,20 +245,39 @@ def compute_coincidence_count(peptide, acid_a, acid_b, pos_i, pos_j):
             count +=1
     return count
 
+def compute_joint_proba(peptide, acid_a, acid_b, pos_i, pos_j):
+    count = 0
+    for sequence in compute_accepted_sequences(peptide):
+        if (sequence[pos_i] == acid_a) & (sequence[pos_j] == acid_b):
+            count += 1
+    proba = 1.0 *count/len(peptide.sequences_accepted)
+    return proba
+
 def compute_mutual_information(peptide):
     mutual_information = np.zeros((5,5))
-    for pos_i in range(5):
-        for pos_j in range(5):
-            count = 0
-            for a in range(20):
-                for b in range(20):
-                    joint_count = compute_coincidence_count(peptide,a,b,pos_i,pos_j)
-                    if (joint_count == 0) | (peptide.freq_matrix[pos_i, a] == 0) | (peptide.freq_matrix[pos_j,b] == 0):
-                        count += 0
-                    else:
-                        x1 = np.log(joint_count) / np.log(20)
-                        x2 = np.log(peptide.freq_matrix[pos_i, a]) / np.log(20)
-                        x3 = np.log(peptide.freq_matrix[pos_j,b]) / np.log(20)
-                        count += joint_count * (x1 - x2 - x3)
-            mutual_information[pos_i, pos_j] = -1.0*count
-    return mutual_information
+    freq_matrix = compute_freq_matrix(peptide)[1]
+    for pos_i, pos_j in itertools.product(range(5), range(5)):
+        count = 0
+        for acid_a, acid_b in itertools.product(range(20), range(20)):
+            joint_proba = compute_joint_proba(peptide, acid_a, acid_b, pos_i, pos_j)
+            proba_a = freq_matrix[pos_i, acid_a]
+            proba_b = freq_matrix[pos_j, acid_b]
+            if (joint_proba ==0) | (proba_a == 0) | (proba_b ==0):
+                count += 0.0
+            else:
+                x1 = np.log(joint_proba)
+                x2 = np.log(proba_a)
+                x3 = np.log(proba_b)
+                count += joint_proba*(x1 - x2 - x3)
+        mi_matrix[pos_i, pos_j] = count
+    return mi_matrix
+
+def correlation(peptide, pos_i, pos_j):
+    correlation_matrix = np.zeros((20,20))
+    freq_matrix = compute_freq_matrix(peptide)[1]
+    for acid_a, acid_b in itertools.product(range(20), range(20)):
+        correlation_matrix[acid_a, acid_b] = compute_joint_proba(peptide, acid_a, acid_b, pos_i, pos_j) - \
+                                                freq_matrix[pos_i,acid_a]*freq_matrix[pos_j,acid_b]
+    return correlation_matrix
+
+
