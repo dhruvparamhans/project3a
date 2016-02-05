@@ -1,3 +1,10 @@
 ##python binaries 
 
 *.pyc
+
+## tex nonsense 
+
+*.aux
+*.log
+*.out
+*.synctex.gz
