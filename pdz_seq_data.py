@@ -1,6 +1,10 @@
 """ 
-This script contains code for performing lasso minimization 
-to integrate PDZ Domain sequences in our model
+Data model for performing Lasso Minimization to integrate
+PDZ Domain sequences into the model. 
+
+I could have extended the previous data class but then 
+lets concentrate on getting things right without worrying
+too much about optimized code
 """
 
 
@@ -32,7 +36,7 @@ class Domain:
 	def compute_one_hot(self):
 		sigma = np.zeros((self.seq_length,20))
 		for i in range(self.seq_length):
-			sigma[i,self.seq_number[i]] +=1
+			sigma[i,self.sequence_number[i]] +=1
 		self.sigma = sigma
 
 class Data:
@@ -51,17 +55,17 @@ class Data:
 
 	def create_domains(self):
 		for domain in self.domains:
-			domain.thetas = self.df[domain.name][:100]
-			domain.thresholds = np.asarray(self.df[domain.name][100:])
+			domain.thetas = self.theta_df[domain.name][:100]
 			domain.thetas = np.asarray(domain.thetas)
 			domain.thetas = domain.thetas.reshape(5,20)
 
 		for i in range(len(self.domain_names)):
-			domains[i].sequence = self.seq_df[i]['Sequence'].encode(self.encoding)
-			domains[i].sequence_list = list(domains[i].sequence)
-			domains[i].remove_unwanted()
-			domains[i].seq_number = self.convert2int(domain.sequence_list)
-			domains[i].compute_one_hot()
+			self.domains[i].sequence = self.seq_df[i]['Sequence'].encode(self.encoding)
+			self.domains[i].sequence_list = list(self.domains[i].sequence)
+			self.domains[i].remove_unwanted()
+			self.domains[i].seqlen = len(self.domains[i].sequence_list)
+			self.domains[i].sequence_number = self.convert2int(self.domains[i].sequence_list)
+			self.domains[i].compute_one_hot()
 
 	def convert2seq(self,seq_int):
 		"""
