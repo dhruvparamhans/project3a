@@ -29,12 +29,12 @@ class Domain:
 		self.sequence_number = list()
 		self.seq_length = seq_length
 
-	def remove_unwanted(self):
-		while '\n' in self.sequence_list:
-			self.sequence_list.remove('\n')
+	def remove_unwanted(self, sequence_list):
+		while '\n' in sequence_list:
+			sequence_list.remove('\n')
 
 	def compute_one_hot(self):
-		sigma = np.zeros((self.seq_length,20))
+		sigma = np.zeros((self.seq_length,21))
 		for i in range(self.seq_length):
 			sigma[i,self.sequence_number[i]] +=1
 		self.sigma = sigma
@@ -53,6 +53,12 @@ class Data:
 
 		self.encoding = 'utf-8'
 
+		self.aligned_sequences = []
+
+		with open('Sequence Alignments/seqs.fasta') as f:
+			for line in f:
+				self.aligned_sequences.append(line)
+
 	def create_domains(self):
 		for domain in self.domains:
 			domain.thetas = self.theta_df[domain.name][:100]
@@ -60,9 +66,9 @@ class Data:
 			domain.thetas = domain.thetas.reshape(5,20)
 
 		for i in range(len(self.domain_names)):
-			self.domains[i].sequence = self.seq_df[i]['Sequence'].encode(self.encoding)
+			self.domains[i].sequence = self.aligned_sequences[i]
 			self.domains[i].sequence_list = list(self.domains[i].sequence)
-			self.domains[i].remove_unwanted()
+			self.domains[i].remove_unwanted(self.domains[i].sequence_list)
 			self.domains[i].seqlen = len(self.domains[i].sequence_list)
 			self.domains[i].sequence_number = self.convert2int(self.domains[i].sequence_list)
 			self.domains[i].compute_one_hot()
