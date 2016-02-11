@@ -44,6 +44,7 @@ class Data:
 	def __init__(self):
 		temp_df = pd.read_excel(DATA+'\\theta_data_removed.xlsx')
 		self.aminoacids = [acid.encode('utf-8') for acid in list(temp_df.columns[:20])]
+		self.aminoacids.append('-')
 		self.theta_df = temp_df.T
 		self.domains = [Domain(domain.encode('utf-8')) for domain in list(self.theta_df.columns)]
 		self.domain_names = [domain.name for domain in self.domains]
