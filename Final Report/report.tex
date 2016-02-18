@@ -10,6 +10,8 @@
 %\usepackage{abraces,mathtools}
 %\usepackage[hidelinks,hyperfootnotes=false]{hyperref}
 \usepackage{empheq}
+\usepackage{graphicx}
+\usepackage[font={small, it}]{caption}
 \usepackage[coverpage]{polytechnique}
 
 \title{Specificity and constraints in Peptide-Protein bindings in the mouse proteome}
@@ -32,15 +34,42 @@
 
 	Once the data presented and the biological context established, we present a first model which seeks to understand the constraints imposed on the peptide sequences under the effect of mutations. We present the results derived from this model and discuss the limitations. A second improved model is then proposed which considers error rates as probabilities. We present some interesting observations on the basis of this model. In particular, we show how certain positions are particularly constrained over all peptides and present a simple way of the calculating the level of constraint. 
 
-	Finally, to render the study of peptide-PDZ domain specificity complete, we explain how we could integrate the PDZ Domain sequences into the modelization. This is done by a regression method called the \textit{Lasso}. We shall have the chance to present the lasso method in more detail in the relevant section. 
+	Finally, to render the study of peptide-PDZ domain specificity complete, we explain how we could integrate the PDZ Domain sequences into the modeling. This is done by a regression method called the \textit{Lasso}. We shall have the chance to present the lasso method in more detail in the relevant section. 
 
 	We conclude with a summary of our findings and possible directions of further improvements. 
 
 	\section{PDZ Domains}
 
-	Let us begin by explaining the importance of PDZ Domains, their importance, their structure and how they bind to other macromolecules. PDZ domains are short sections of proteins composed of 80-90 amino acids. PDZ Domains are usually found in signalling proteins where they regulate processes such as the separation of cell membranes. Th
+	Let us begin by explaining PDZ Domains, their importance, their structure and how they bind to other macromolecules. PDZ domains are short sections of proteins composed of 80-90 amino acids. PDZ Domains are usually found in signaling proteins where they regulate processes such as the separation of cell membranes. PDZ itself is an acronym for the first three letters of three proteins: Post-synaptic density protein (PSD95), Drosophilia disc large tumor suppressor (Dlg1) and zonula occludens-1 protein (zo-1)
+
+	PDZ Domains are usually composed of 80-90 amino acids and many PDZ domains can be present within a single protein. Multiple domains within the same protein can have similar functions or different functions, each of which will bing to a different part of the target protein or a different protein altogether.
+
+	PDZ Domains always bind to the C-terminal of certain specific sections of the target proteins. The binding occurs within a binding pocket formed by the domain. The binding pocket are usually formed by the first 20 amino acids. A diagram showing the positions of the binding pocket as well as the target peptide are shown below. 
+
+	\begin{figure}
+	\label{PDZ_Positions}
+	\centering
+	\includegraphics[width=10cm]{Images/pdz.jpg}
+	\caption{\textbf{Left}: We show the PDZ domain (in blue) with the target peptide (yellow). The C-terminal of the target peptide is numbered 0 whilst the preceding amino acids are numbered in descending order. 
+	\textbf{Right}: The position of the PDZ-Domain within the parent protein is shown. The position marked with a little star shows that during the binding process there are other parts of the PDZ domain which are involved and not just the binding pocket}
+	\end{figure}	
 
 	\section{Explanation of the data of Stifler et al}
+
+	Now that we have given a small introduction to PDZ domains we shall explain the work done by Stifler and co-authors which we sought to extend and improve upon.
+
+	The article that we have considered is titled "PDZ domain binding specificity is optimized across the mouse proteome". In this article, Michael Stifler and co-authors sought to characterise the selectivity between 157 PDZ domains and 217 target peptides found in the mouse proteome. To this end, they created a model which could predict whether a given PDZ domain would bind to a target peptide given the sequence of the target peptide.
+
+	In their model, the last 5 positions near the C-terminal of the target peptide are considered. The model can be summarized in the following simple equation: 
+
+	\begin{equation}
+	\phi_{i} = \sum_{p,q} A_{p,q} \theta_{i,p,q} > \tau_{i}
+	\end{equation}
+
+	where for a given PDZ Domain $i$, we can calculate a binding score $\phi_{i}$. $A$ is an indicator of the peptide sequence : $A_{p,q} =1$ if the amino acid at position $p$ of the peptide is $q$ and $A_{p,q} =0$ otherwise. The numbers $\theta_{i,p,q}$ are the parameters that need to be fit to the experimental data. $\tau_{i}$ is a scoring threshold which is different for each domain $i$. The values $\theta_{i,p,q}$ are to be interpreted in the following fashion: $\theta_{i,p,q} > 0$ if the PDZ Domain $i$ prefers amino acid $q$ at position $p$ more than the other PDZ domains, negative if it prefers it less, and 0 if it has no bias relative to the other domains. $\tau_{i}$ is defined as the $m$th percentile of the $\phi_{i}$'s for all the peptides in the model that bound to the domain $i$. To make predictions using this model, it suffices to know the sequence of the target peptide and compute $\phi_{i} - \tau_{i}$ for the domain $i$. If the domain binds with the target protein then this number is positive and negative otherwise. 
+
+	The data used to fit the model was obtained by protein micro-array assays. Each PDZ Domain-peptide pair under consideration was verified for binding during the experiment. 
+
 
 	\section{Questions asked and answered}
 
