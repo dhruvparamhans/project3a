@@ -15,6 +15,8 @@
 \usepackage{indentfirst}
 \usepackage[font={small, it}]{caption}
 \usepackage[coverpage]{polytechnique}
+\usepackage{booktabs}
+\usepackage{multirow}
 
 \title{Specificity and constraints in Peptide-Protein bindings in the mouse proteome}
 \subtitle{Report for 3rd Year Research Project}
@@ -196,16 +198,125 @@
  	\label{apc_evol}
  	\centering
  	\includegraphics[width=7cm]{Images/apc_evol.png} 
- 	\caption{The evolution of the energies of the mutated sequences of \textbf{APC} during one MC cycle. Out of 1000 mutations possible, it accepts close to 530 mutations, showing a great susceptibility to undergo mutations. Red line show the natural energy.}
+ 	\caption{The evolution of the energies of the mutated sequences of \textbf{APC} during one MC cycle. Out of 1000 mutations possible, it accepts close to 530 mutations, showing a great susceptibility to undergo mutations. Red line shows the natural energy.}
  	\end{figure} 
 
  	This behavior is related to the particular nature of the peptide \textbf{APC} as well as the errors inherent in the model. We ascribe this behavior to the erroneous predictions of the model which needs to be accounted for in a newer model. This is the subject of the next section. 
+\pagebreak
 \part{Improvements over first model: Bayesian Modeling}
-	\section{Error rates as probabilities}
-	\section{Updated Bayesian model}
-	\section{Improvements over first model}
-	\section{Results}
-	\section{Interesting observations}
+	
+	The case of the peptide \textbf{APC} tells us that we cannot consider all the predictions of the model to be true and we need a way to integrate the error rates which are present in any predictive model. To this end, we propose a refined model based on conditional probabilities.
+\section{Error rates as probabilities}
+	Any predictive model is seldom 100\% perfect and there are always cases where the predictions of the model are in contradiction with the experimental facts. This is the case with the model used by Stifler et al. The information concerning the error rates for their model is known to us and thus we can integrate this extra information to refine our model. 
+
+	To do this, we need to understand the error rates that we possess. These error rates are reported as true positive rate, false positive rate, true negative and false negative rates. To be more precise, considering that the model predicts binary values 0(False) or 1(True):
+
+	\begin{enumerate}
+	\item 
+	\textbf{True Positive Rate (TP)}: $\frac{\text{Number of events predicted to be True}}{\text{Number of events actually True}}$
+	\item 
+	\textbf{True Negative Rate (TN)}: $\frac{\text{Number of events predicted to be False}}{\text{Number of events actually False}}$
+	\item 
+	\textbf{False Positive Rate(FP)}: $\frac{\text{Number of events predicted to be True}}{\text{Number of events actually False}}$
+	\item 
+	\textbf{False Negative Rate(FN)}: $\frac{\text{Number of events predicted to be False}}{\text{Number of events actually True}}$
+	\end{enumerate}
+
+	For the model proposed by Stifler, these values are given as:
+
+\begin{table}[]
+\centering
+\caption{Error rates from Stifler et al.}
+\label{tab_error_rate}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Error Rate & Value \\ \midrule
+TP         & 96\%  \\
+FN         & 4\%   \\
+FP         & 15\%  \\
+TN         & 85\%  \\ \bottomrule
+\end{tabular}
+\end{table}
+
+The way these error rates are defined reminds us of the definition of conditional probabilities. And thus, we can interpret these error rates as conditional probabilities. If the model makes a prediction on a new piece of data, these rates then tell us with what probability the experimental value was +1 or -1. Thus we have, 
+\begin{align}
+\label{inter_cond}
+\text{TP} &= \mathbb{P}(\text{Model} = 1 | \text{Experiment} = 1) \\
+\text{FN} &= \mathbb{P}(\text{Model} = -1 | \text{Experiment} = 1) \\
+\text{FP} &= \mathbb{P}(\text{Model} = 1 | \text{Experiment} = -1) \\
+\text{TN} &= \mathbb{P}(\text{Model} = -1 | \text{Experiment} = -1)
+\end{align}
+
+We can then recast Table~\ref{tab_error_rate} in the following manner:
+
+\begin{table}[!h]
+\centering
+\caption{Error rates as conditional probabilities}
+\label{tab_proba_error}
+\begin{tabular}{@{}ccc@{}}
+\toprule
+Model & Exp & P(Model|Exp) \\ \midrule
++1    & +1  & 0.96         \\
+-1    & +1  & 0.04         \\
++1    & -1  & 0.15         \\
+-1    & -1  & 0.85         \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{Updated Bayesian model}
+
+Having cast error rates as probabilities we can now use Bayes rule to invert the Table~\ref{tab_proba_error} i.e. calculate the probability $\mathbb{P}(\text{Exp|Model})$. This can be done using the following equation:
+
+\begin{align}
+\label{invert_proba_bayes}
+\mathbb{P}(\text{Exp|Model}) = \frac{\mathbb{P}(\text{Model|Exp}) \mathbb{P}(\text{Exp})}{\mathbb{P}(\text{Model})}
+\end{align}
+
+where $\mathbb{P}(\text{Model})$ is a normalising factor that needs to be calculated from the experimental data and $\mathbb{P}(\text{Exp}=1)$is for a given peptide, number of domains that it binds to, and similarly for $\mathbb{P}(\text{Exp}=-1)$. We can thus calculate a the \textit{posterior} probabilities for each peptide: by using the interaction matrix for calculating $\mathbb{P}(\text{Exp})$, with $\mathbb{P}(\text{Model})$ is calculated by normalising the probability $\mathbb{P}(\text{Exp|Model})$. 
+
+We can create a posterior probability matrix for the complete data set, by summing over all the peptides in the data set. We thus have
+
+\begin{table}[!h]
+\centering
+\label{tab_proba_posterior}
+\caption{Posterior Probability Matrix}
+\begin{tabular}{@{}ccc@{}}
+\toprule
+Exp & Model & P(Exp|Model) \\ \midrule
++1  & +1    & 0.1818       \\
+-1  & +1    & 0.8181       \\
++1  & -1    & 0.0016       \\
+-1  & -1    & 0.9983       \\ \bottomrule
+
+\end{tabular}
+\end{table}
+
+We observe that the value $\mathbb{P}(\text{Exp=1|Model=1})$ is very small. This is because for the whole data set $\mathbb{P}(\text{Exp=1})$ is very small $\sim$ 0.03. 
+
+For the purposes of introducing mutated sequences into the model, we would now like to compute the probability of binding (non-binding) given a mutated sequence. To this end, we use the chain rule to get the following expression for $\mathbb{P}(\text{Exp|Sequence})$:
+
+\begin{align}
+\label{proba_model_chain}
+\mathbb{P}(\text{Exp|Sequence}) = \sum_{\text{Model}=\pm 1} \mathbb{P}(\text{Exp|Model}) \mathbb{P}(\text{Model|Sequence})
+\end{align}
+
+where 
+\begin{equation}
+\mathbb{P}(\text{Model|Sequence}) = \frac{1}{1+e^{-\textrm{y}_{\text{model}} \phi}}
+\end{equation}
+and where $\textrm{y}_{\text{model}} = \pm 1$ are the values predicted by the model (+1 for binding and -1 for non-binding) and $\phi$  is the score calculated from \eqref{model_base}. We once again compute an energy for each peptide, this time for the updated probability \eqref{proba_model_chain}. Using the variable $y$ for the values that Exp and Model can take, we write the energy for the peptide $l$ as :
+
+\begin{align} 
+\label{energy_bayes}
+\mathrm{E} = - \sum_{i} \mathrm{log}(\mathbb{P}(y^{i,l}_{\text{Exp}} | \text{seq}))
+\end{align}
+
+where the sum runs over all the domains $i$. Using this redefined energy, we perform MC simulations with the same parameters as before.
+
+\section{Improvements over first model}
+\section{Results}
+\section{Interesting observations}
+\pagebreak
 \part{Integrating PDZ Domain sequences} 
 	\section{The LASSO}
 	\section{Interesting observations}
