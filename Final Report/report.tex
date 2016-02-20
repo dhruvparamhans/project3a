@@ -21,7 +21,7 @@
 \title{Specificity and constraints in Peptide-Protein bindings in the mouse proteome}
 \subtitle{Report for 3rd Year Research Project}
 \author{Dhruv SHARMA}
-\usepackage{geometry}
+%\usepackage{geometry}
 
 \newcommand*\widefbox[1]{\fbox{\hspace{2em}#1\hspace{2em}}}
 \begin{document}
@@ -313,13 +313,163 @@ and where $\textrm{y}_{\text{model}} = \pm 1$ are the values predicted by the mo
 
 where the sum runs over all the domains $i$. Using this redefined energy, we perform MC simulations with the same parameters as before.
 
-\section{Improvements over first model}
 \section{Results}
-\section{Interesting observations}
+
+\begin{enumerate}
+\item 
+We first compare the distribution of energies in the updated model. In the updated model, the spread of energies is limited between 0 and 20. More importantly, the distribution of energies once the mutations have been affected is similar. We thus see already a great improvement in the model whereby we have prevented drastic drops in energy like the one we saw in the case of \textbf{APC} 
+
+\begin{figure}[!h]
+\label{update_model_energy}
+\centering
+\includegraphics[width=10cm]{Images/update_model_dist.png}
+\end{figure}
+
+\item 
+
+This time we had more confidence in the model with respect to the previous one, we computed other relevant quantities that could give us information about the constraints present in the sequences of the peptides. One of the first quantities that we computed was the entropy of the peptide from the frequency matrix. We define the entropy of the peptide $l$ for the position $k$ in its sequence as :
+
+\begin{equation}
+\label{entropy_definition}
+S^{l}_{k} = -\sum_{a=1}^{a=20} p_{k,a} \mathrm{log}(p_{k,a})
+\end{equation}
+
+where the sum $a$ runs over all the 20 amino acids and $p_{k,a}$ is the probability of finding amino acid $a$ at position $k$. This probability can readily be computed from the frequency matrix for the peptide $l$. The entropy is a particularly relevant quantity since it provides a direct way of determining the degree of constraint that is present in the position $k$ for any peptide. In particular, a value of $S=0$ tells us that the peptide doesn't accept any mutations on the position considered and is thus highly constrained. 
+
+Furthermore, we can also compute the quantity $S^{l} = \sum_k S^{l}_{k}$ which is the sum of the entropies over all positions for the peptide l. This quantity tells us how much liberty we do have while performing mutations of the natural peptide sequence. To facilitate our understanding and provide a simple way of distinguishing between different types of peptides, we divide all the 217 peptides based on a quantity called the binding number $\mathrm{bn}$, which is just the number of domains that a peptide binds to. 
+
+As a first indication of the dependence of the behavior of peptides as a function of their binding number, we trace the number $S^l$. 
+
+\begin{figure}
+\label{sum_entropy_bn}
+\centering 
+\includegraphics[width=7cm]{Images/sum_vs_bn.png}
+\caption{Dependence between entropy and binding number}
+\end{figure} 
+
+We remark that the entropy varies inversely with an increase in binding number. This shows that higher the binding number, higher are the constraints present over the natural sequence of the peptide. Thus, we are led to a closer analysis of the position wise entropies $S^{l}_{k}$for different values of the binding number. 
+
+\item 
+We know that if $S^{l}_{k}=0$ for any position $k$ then it implies that the position $k$ is immune to mutations. After dividing the peptides by their binding numbers, we searched for any peptides which showed such behavior. Remarkably and contrary to what we would have believed initially, such peptides are present over a large range of binding numbers: we would accept that a peptide with bn=25 would have some position constrained owing to its extremely low entropy value. However, we also observed constraints for binding numbers as low as bn=3. The peptide with bn=3 showing such a behavior is \textbf{NMDAR2C}
+
+\begin{figure}[!h]
+\label{bn_3_freq_matrix}
+\centering
+\includegraphics[width=7cm]{Images/nmdar2c.png}
+\caption{The 2nd position in the sequence of \textbf{NMDAR2C} is clearly constrained. Even for other positions we see that the space of possible mutations isn't spread out over many amino acids.}
+\end{figure}
+
+\item 
+
+After having observed the presence of constraints, we wanted to see whether any non-trivial correlations existed between the two positions. To determine which two positions could be potentially correlated, we computed the mutual information matrix, defined as follows:
+
+\begin{equation}
+\label{mi_definition}
+\mathrm{MI}_{i,j} = \sum_{a=0, b=0}^{a=20, b=20} p_{i=a, j=b} \mathrm{log}(\frac{p_{i=a,j=b}}{p_{i,a} p_{j,b}})
+\end{equation}
+
+where $p_{i=a,j=b}$ is the joint probability of finding the amino acids $a$ and $b$ at positions $i$ and $j$ respectively and $p_{i,a}$ is the probability of finding amino acid $a$ at position $i$. The mutual information intuitively tells us how much information is considered in the variable X about the variable Y. In our case, by computing the mutual information matrix, we would be able to determine the correlated positions in the peptide sequence. 
+
+\begin{figure}
+\centering 
+\label{mi_nmdar2c}
+\includegraphics[width=7cm]{Images/nmdar2c_mi.png}
+\caption{The mutual information matrix for NMDAR2C. The second position (1 in the figure) being completely constrained is not correlated with any of the other positions.}
+\end{figure} 
+
+The constraint on the position numbered 1 in the figure (the numbering used in the figures starts with 0, common in programming languages) is manifest in the mutual information matrix as well. It is completely independent of the other positions, implying that it is completely uncorrelated with any other position as well. This is just another way of saying that the position numbered 1 must conserve the amino acid found in the natural sequence irrespective of the other positions. 
+
+From the mutual information matrix, we see that positions numbered 2 and 3 might be correlated. However, the computed correlations are very small, suggesting that the positions are only weakly correlated. This trend was observed for other peptides with different bn's as well. 
+
+\begin{figure}
+\centering 
+\label{corr_2_3_nmdar2c}
+\includegraphics[width=7cm]{Images/nmdar2c_corr_2_3.png}
+\caption{The normalized correlation coefficient matrix for correlations between the different pairs of amino acids. Barring a few amino acids, most amino acids are completely uncorrelated.}
+\end{figure} 
+
+\item 
+
+From the frequency matrix we can compute the most probable sequence. This sequence is constructed by computing the amino acid with the highest probability of occurrence at any given position. We present here the most probable sequences for each of the 18 peptides which showed highly constrained behavior during the MC runs. 
+
+\begin{table}[!h]
+\centering
+\caption{Peptides with constrained positions}
+\label{Zero_entopy peptides}
+\begin{tabular}{lllll}
+\hline
+Name       & MPS   & Base Sequence & Hamming Distance & Binding Number \\ \hline
+           &       &               &                  &                \\ \hline
+Caspr2     & KRWIC & KEWLI         & 3                & 5.0            \\ \hline
+Cftr       & QETRL & QETRL         & 0                & 17.0           \\ \hline
+Cnksr2     & LETHV & IETHV         & 1                & 25.0           \\ \hline
+CRIPT      & KQTSV & KQTSV         & 0                & 12.0           \\ \hline
+ctransprtr & NATRL & NATRL         & 0                & 8.0            \\ \hline
+Nav1.      & RESNV & RESIV         & 1                & 9.0            \\ \hline
+NMDAR2B    & IESDV & IESDV         & 0                & 8.0            \\ \hline
+PKC        & LQAAV & LQSAV         & 1                & 8.0            \\ \hline
+PMCA1      & IETSL & LETSL         & 1                & 19.0           \\ \hline
+Sapk3      & LETAL & KETAL         & 1                & 20.0           \\ \hline
+SSTR2      & ILAWV & IIAWV         & 1                & 22.0           \\ \hline
+TAZ        & FLTWL & FLTWL         & 0                & 18.0           \\ \hline
+TRPC4      & NHTRL & VTTRL         & 2                & 6.0            \\ \hline
+NMDAR2C    & LESTV & LESEV         & 1                & 3.0            \\ \hline
+Kv1.5      & RETDQ & RETDL         & 1                & 7.0            \\ \hline
+Kv1.7      & MVTTV & MVTEV         & 1                & 13.0           \\ \hline
+TRPM6      & NHTRL & DHTRL         & 1                & 5.0            \\ \hline
+TRPV3      & PETSV & PETSV         & 0                & 12.0           \\ \hline
+\end{tabular}
+\end{table}
+
+\item 
+
+An interesting observation that we made during the search for the presence of constraints was that the last position, i.e. C-terminal amino acid was never constrained. This is surprising because PDZ domains bind to the C-terminal of the target peptides. The lowest values for the entropy and thus the most constraints were seen for positions numbered 2 and 3 in the diagrams, which would corresponds to -3 and -2 in the sequence of the peptide. No constraints were found for last position that is -4 either. 
+
+\item 
+
+Finally, we attempted to see whether by the removal of one PDZ domain would change the behavior of the peptides or not. It was found that it did not. However, on average the peptides accepted more mutations that with the presence of the domain. But these mutations were energetically unfavorable. 
+\end{enumerate}
+
+\textbf{Some Caveats}
+
+\begin{enumerate} 
+\item 
+The peptide sequences considered here are made up only 5 amino acids. Thus, our modeling is necessarily local in nature and we are not aware of the relevant steric and chemical effects that might influence the binding between peptides and PDZ-domains. Furthermore, we know that the binding pocket is not the only part of the PDZ domain which is implicated in the binding, other positions far away from the binding pocket are involved too. Thus, by considering only those sections of the target molecules which are present near the binding pocket, our analysis can only be limited. 
+
+\item 
+There are many peptides for whom we didn't see any constraints whatsoever. This however should not mean that constraints are completely absent from these peptides. Far from it, this serves as a reminder of the limited scope of our study. With only 74 domains to play with, we cannot generalize the behavior of the peptides that we studied. 
+
+\end{enumerate}
+
 \pagebreak
 \part{Integrating PDZ Domain sequences} 
-	\section{The LASSO}
-	\section{Interesting observations}
+
+After having studied the peptides present in our data set, we sought to integrate the sequences of the PDZ domains. We wanted to be able to propose a model using the sequences of the PDZ Domains which would be able to recreate the parameters $\theta_{i,p,q}$ of the original model \eqref{model_base}. To this end, we decided to use a simple linear model. However, this linear model is necessarily under-constrained. For instance if we consider one domain $i$, and we assume that we will consider only the first 20 amino acids in the sequence, it gives us a possible 400 parameters (20 amino acids $\times$ 20 positions) parameters to fit for 100 unknown variables. (For each domain $i$, we have 100 values for $\theta_{i,p,q}$: 5 positions on the peptide $\times$ 20 amino acids). An ordinary least squares regression would not be very efficient. However, the method \textbf{LASSO} or Least Absolute Shrinkage and Selection Operator is best adapted to our needs. This is the method that we decided to finally use. 
+\section{The LASSO}
+
+The LASSO is a method which forces the sum of the absolute value of the regression coefficients to be less than a fixed value, leading to certain regression coefficients to be set to zero. The condition of forcing the absolute sum of the coefficients to be less than a certain limit is known as \textbf{L1 Regularization}. 
+
+The Lasso can be written as an optimization problem set in the form: 
+
+\begin{equation} 
+\label{lasso_eq_basic_form}
+\min_{\beta_0, \beta}\left\{ \frac{1}{N} \sum_{i=1}^N (y_i-\beta_0 - X \beta)^2 \right\}  \text{ subject to } \sum_{j=1}^{p} \|\beta_j\| \leq t
+\end{equation}
+
+However, we can recast this equation in the Lagrangian form as follows:
+
+\begin{equation}
+\label{lasso_lagrange}
+\min_{ \beta \in \mathbb{R}^p } \left\{ \frac{1}{N} \left\| y - X \beta \right\|_2^2 + \lambda \| \beta \|_1 \right\}
+\end{equation}. 
+
+Here, $y$ is the output of the model and $X$ is the data. In our case, the output variables are the $\theta_{i,p,q}$ for each of the domains $i$ and the $X$ correspond to a matrix of dimensions $n \times 20$ where $n$ is the length of the PDZ domain sequence that we consider. The matrix $X$ is defined as follows: $X_{n,a} = 1$ if the amino acid $a$ is at position $n$ and $X_{n,a} = 0$ otherwise. 
+
+For a practical implementation, we considered 70 domains for whom we could find the complete sequence. For each of the domains the $\theta_{i,p,q}$ were collapsed into a vector of dimensions $100 \times 1$, and the $X^{i}$ were collapsed into a vector of size $ (n \times 20) \times 1$. Thus, the output variable $y$ had dimensions $70 \times 100$ while $X$ had dimensions $70 \times (n\times 20)$. The lasso was finally implemented with the open source library scikit-learn in Python. 
+
+\section{Results}
+
+We studied two configurations for the 
 \part{Conclusion}
 
 \end{document}
