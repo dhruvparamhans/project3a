@@ -509,7 +509,7 @@ Below we have plotted the variation of the test error for various values of $\la
 \end{figure}
 
 \item 
-To understand the behavior of intermediate values of $n$ as we varie $\lambda$, we tracked the variation of train and test error as a function of $\lambda$. 
+To understand the behavior of intermediate values of $n$ as we varie $\lambda$, we tracked the variation of train and test error as a function of $\lambda$. In the plot below, we observe that the lowest values of test error are achieved for sequence lengths $n=6$ and $n=7$, whilst for other values of $n$, we see a minimum but the overall test error is higher. The optimum is achieved for $\lambda \sim 0.2$. We have thus concluded that till $n=10$ we do have a minimum and thus our model has predictive ability. 
 
 \begin{figure}[!h]
 \centering
@@ -518,6 +518,8 @@ To understand the behavior of intermediate values of $n$ as we varie $\lambda$, 
 \caption{The evolution of test error for various values of $\lambda$ for $n=5 \rightarrow n=9$}
 \end{figure}
 
+In the next figure we plot the test error for values of $n$ from 10 to 14. We observe that for $n=10,11,12$, a minimum is achieved for $\lambda \sim 0.2$. However, for $n=13$ there is no minimum and the difference between the curves for $n=13$ and other curves is pretty striking. We thus conclude that the maximum sequence length that we can hope to model faithfully is restricted till $n=12$ and that for higher values, our model may not be predictive. 
+
 \begin{figure}[!h]
 \centering
 \label{test_error_lambda_3}
@@ -525,14 +527,72 @@ To understand the behavior of intermediate values of $n$ as we varie $\lambda$, 
 \caption{The evolution of test error for various values of $\lambda$ for $n=10 \rightarrow n=14$}
 \end{figure}
 
+\item 
 
+\begin{figure}[!h]
+\centering 
+\label{coefficient_matrix}
+\includegraphics[width=10cm]{Images/coefficient_matrix_10.png}
+\caption{The matrix of coefficients fit to the data by the lasso method. Here the size of the sequence taken is 10. The interpretation of different parameters isnt very clear, especially since the matrix is sparse}
+\end{figure}
+
+Finally we analyse the lasso parameters that we retrieved from fitting the model to the data. For a sequence of length 10, the matrix of parameters fit to the data is a matrix of dimensions $100 \times 210$ which is a relatively sparse matrix. Furthermore, the interpretation of each of the parameters is difficult, especially since we are interested in the correlations between positions in the peptide sequence and positions in the PDZ sequence. Thus to facilitate our understanding, we undertake a pooling operation: we sum the absolute values for each $20 \times 21 $ block in the coefficient matrix. This pooling operation provides a nice, visual way of representing the details of the coefficient matrix. If some of the entries in the pooled matrix are zero, then we can be sure that the corresponding submatrice in the coefficient matrix were zero, and thus are unimportant for predicting binding affinities between a peptide and a PDZ domain. 
 
 
 \item 
 
+Observing the matrix below, we remark that the maximum values in the pooled matrix correspond to the positions (1,2) and (3,0). Let us have a closer look at the submatrices that contribute to these entries. 
+
+\begin{figure}[!h]
+\centering 
+\label{pooled_matrix}
+\includegraphics[width=10cm]{Images/pooled_matrix_seq_10.png}
+\caption{The matrix received after pooling the entries in the complete coefficient matrix. This provides a better overview of the structure of the coefficient matrix and also provides us information on the relevant terms in the coefficient matrix}
+\end{figure} 
+
+The first submatrix that we analyse is the matrix corresponding to position 1 in the peptide (on the actual sequence, we need to add +1 since the numbering here follows the notation adopted in programming languages) and 2 in the PDZ sequence. We observe that the important coefficients correspond to the amino acid \emph{Isoleucine} on the domain at position 2 while the most important amino acids on the peptide are similar amino acids like \emph{Alanine, Leucine and Isoleucine}. It is quite remarkable that even though it is \emph{Leucine} which is most common at position 2 in the multiple sequence alignment of the domain sequences, it is \emph{Isoleucine} which has non-zero coefficients in our model. 
+
+\begin{figure}[!h]
+\centering
+\label{submatrix_12}
+\includegraphics[width=7cm]{Images/submatrix_12.png}
+\caption{The terms making up the submatrix (1,2) in the complete coefficient matrix}
+\end{figure}
+
+Let us now consider the case of the submatrix (3,0). Here the amino acid \emph{Phenylalanine} (F) on the PDZ domain sequence is correlated with \emph{Tyrosine} (Y) on the peptide sequence. Again it is interesting to see that \emph{Phenylalanine} is not the most common amino acid at position 0 in the multiple sequence alignment. Let us now turn our attention to the most important submatrix for our purposes
+
+\begin{figure}[!h]
+\centering
+\label{submatrix_30}
+\includegraphics[width=7cm]{Images/submatrix_30.png}
+\caption{The terms making up the submatrix (3,0) in the complete coefficient matrix}
+\end{figure}
+
+In the sub-matrix (4,3) we see a remarkable thing happening: the only amino acid which counts on the PDZ domain sequence is \emph{Glycine}. If we look at the multiple sequence alignment, we see that \emph{Glycine} is found at the position number 3 in all the PDZ domains. Thus it isnt a surprise that non-negligeable terms in the coefficient matrix exist for \emph{Glycine}. What is perhaps more interesting is that apart from the last position on the peptide sequence, none of the other positions have comparable coefficients in the pooled matrix. If we remember from our analyse on peptide sequences, we had observed that there were no constraints on the last position of the peptide sequence. We can now understand this phenomena by the fact that for peptide-domain binding it is the position 3 (or 4 on the actual sequence) on the PDZ domain sequence which is important. Thus, the constraint does exist, but not on the peptide but on the PDZ domain sequence since it is conserved through all the domains. What is also perhaps interesting to observe is the quasi-uniformity of the coefficients for most of the amino acids on the peptide sequence. 
+
+\begin{figure}[!h]
+\centering
+\label{submatrix_43}
+\includegraphics[width=7cm]{Images/submatrix_43.png}
+\caption{The terms making up the submatrix (4,3) in the complete coefficient matrix}
+\end{figure}
+
+Here we have seen a remarkable case of the existence of constraints not on the peptide sequence but on the domain sequence. We thus conclude that it is not just the peptide sequence that is important in determining PDZ Domain-Peptide binding specificity but also the sequence of the PDZ domain itself. 
+
 \end{enumerate}
 
-\part{Conclusion}
+\textbf{Some Caveats}
+
+\begin{itemize}
+\item 
+We have only considered short sections of the PDZ Domain sequence. Thus our model has still remained relatively local in its scope. By restricing ourselves to about the first 10 amino acids in the PDZ Domain sequence, we have actually not ventured out of the binding pocket. Thus the model is limited because it does not take into account the influence of the amino acids further in the PDZ domain sequence. 
+
+\item 
+The model proposed here is a linear model and thus will not be able to capture the complete richness of the interactions between a target peptide and a particular PDZ domain. Furthermore, we have seen the applicability of the model depends closely on the length of the sequence concerned. Thus if are to complete integrate the complete sequence of the domain, then it would be a difficult task. 
+
+\item 
+For lack of time, an analysis of the effects of mutations on the PDZ domain sequences has not been conducted. 
+\end{itemize}
 
 \nocite{*}
 \printbibliography
