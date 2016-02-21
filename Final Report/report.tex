@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage[english]{babel}
+\usepackage{csquotes}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -17,11 +18,14 @@
 \usepackage[coverpage]{polytechnique}
 \usepackage{booktabs}
 \usepackage{multirow}
+\usepackage[backend=biber]{biblatex}
+
 
 \title{Specificity and constraints in Peptide-Protein bindings in the mouse proteome}
 \subtitle{Report for 3rd Year Research Project}
 \author{Dhruv SHARMA}
-%\usepackage{geometry}
+
+\bibliography{biblio.bib}
 
 \newcommand*\widefbox[1]{\fbox{\hspace{2em}#1\hspace{2em}}}
 \begin{document}
@@ -469,7 +473,68 @@ For a practical implementation, we considered 70 domains for whom we could find 
 
 \section{Results}
 
-We studied two configurations for the 
+Starting with the sequences, we first performed an alignment since the domain sequences were collected from different sources. Once aligned we were left with two configurations, one with gaps and one without gaps. We decided to remove those positions from the sequences for which there were gaps in more than 50\% of the positions in the multiple sequence alignment. Once these positions were removed, we could begin testing our model using the lasso method. 
+
+\begin{enumerate} 
+\item 
+We first tested the validity of the model and its predictive power. A 80-20 split was performed: 80\% of the data set was used for training the model and 20\% was used for testing it. For the lasso method, we have one free parameter $\lambda$ in \eqref{lasso_lagrange}. To decide the optimal value for $\lambda$ we tracked the training and testing error for different values of $\lambda$. The training error and test error were simply defined as the $\mathrm{L}^2$ norms of the difference between the model prediction and the experimental values. 
+
+$\lambda$ is not the only parameter that is at our disposition. A critical choice needs to be made about the length of the sequence $n$ of the domain that we want to model. Thus we tracked the evolution of the training and testing error for different values of the sequence length.
+
+\begin{figure}[!h]
+\centering 
+\label{train_error_lambda_1}
+\includegraphics[width=7cm]{Images/train_error_lambda.png}
+\caption{The evolution of training error for various values of $\lambda$}
+\end{figure} 
+
+We remark that the training error for different values of $n$ has the same behavior. The training error increases as the value of $\lambda$ increases for all values of $n$. This is to be expected: for small values of $\lambda$ there is essentially a situation of overfit whereby the model is completely fit to the data that we have provided but will not generalize to the new test data. For higher values of $\lambda$, the regularization factor in \eqref{lasso_lagrange} makes a majority of terms zero and thus the model is very poorly fit. Thus, we expect to find an optimal value of $\lambda$ which will serve the need for a predictive model: fit existing data well and generalize well to new data. To this end, we need to track the evolution of test error, that is the error committed by the model when it is used to predict values that were not used to fit the parameters of the model. This situation is best illustrated in the following diagram 
+
+\begin{figure}[!h]
+\centering 
+\label{overfitting}
+\includegraphics[width=7cm]{Images/overfitting.jpeg}
+\caption{The evolution of training and test error for a predictive model.}
+\end{figure} 
+
+We see that if the validation or test error increases while the training error decreases then a case of overfitting might have occurred. However, the best predictive and fitted model would be where the validation error has its global minimum. 
+
+Below we have plotted the variation of the test error for various values of $\lambda$ for different values of $n$. We observe that for small values of $n$ like 5 or 10, there is a global minimum for test error indicating us that our model can be used to predict on new values. However, for higher values of $n$, the test error shows monotonic behavior implying that there is no global minimum for the test error. Thus, we fear that for higher values of $n$, our model might not be used to predict on unknown test data. 
+
+\begin{figure}[!h]
+\centering
+\label{test_error_lambda_1}
+\includegraphics[width=7cm]{Images/test_error_lambda.png}
+\caption{The evolution of test error for various values of $\lambda$}
+\end{figure}
+
+\item 
+To understand the behavior of intermediate values of $n$ as we varie $\lambda$, we tracked the variation of train and test error as a function of $\lambda$. 
+
+\begin{figure}[!h]
+\centering
+\label{test_error_lambda_2}
+\includegraphics[width=7cm]{Images/test_error_lambda_2.png}
+\caption{The evolution of test error for various values of $\lambda$ for $n=5 \rightarrow n=9$}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\label{test_error_lambda_3}
+\includegraphics[width=7cm]{Images/test_error_lambda_3.png}
+\caption{The evolution of test error for various values of $\lambda$ for $n=10 \rightarrow n=14$}
+\end{figure}
+
+
+
+
+\item 
+
+\end{enumerate}
+
 \part{Conclusion}
+
+\nocite{*}
+\printbibliography
 
 \end{document}
