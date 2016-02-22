@@ -8,24 +8,25 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{relsize}
-%\usepackage{abraces,mathtools}
-%\usepackage[hidelinks,hyperfootnotes=false]{hyperref}
+\usepackage{abraces,mathtools}
+\usepackage[hidelinks,hyperfootnotes=false]{hyperref}
+\usepackage{hyperref}
 \usepackage{empheq}
 \usepackage{graphicx}
 \usepackage{parskip}
 \usepackage{indentfirst}
 \usepackage[font={small, it}]{caption}
-\usepackage[coverpage]{polytechnique}
+\usepackage[fancysections, titlepage]{polytechnique}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage[backend=biber]{biblatex}
+\addbibresource{biblio.bib}
 
 
 \title{Specificity and constraints in Peptide-Protein bindings in the mouse proteome}
 \subtitle{Report for 3rd Year Research Project}
 \author{Dhruv SHARMA}
 
-\bibliography{biblio.bib}
 
 \newcommand*\widefbox[1]{\fbox{\hspace{2em}#1\hspace{2em}}}
 \begin{document}
@@ -34,24 +35,24 @@
 \tableofcontents
 \pagebreak
 \part{Introduction}
-	This report details the work done towards the fulfillment of the requirements of the department of Physics at Ecole Polytechnique. I undertook this research project under the guidance of Dr. Remi Monasson at the Laboratoire de Physique Theorique at the Ecole Normale Superieure in Paris.
+	This report details the work done towards the fulfilment of the requirements of the department of Physics at Ecole Polytechnique. I undertook this research project under the guidance of Dr. Remi Monasson at the Laboratoire de Physique Theorique at the Ecole Normale Superieure in Paris.
 
 	\indent
-	The aim of the project was to study the interactions between short peptide chains and a specific section of signaling proteins called PDZ Domains. One of the aspects that we study here is the specificities of interactions between peptides and PDZ domains. It is well known that macromolecules such as proteins and enzymes interact in a specific manner with other macromolecules and biomolecules. What interested us over the course of the study are the constraints present in the peptide sequences due to the specificity of their interactions with PDZ domains. We will also have an occasion to understand similar constraints on the PDZ domain sequences. 
+	The aim of the project was to study the interactions between short peptide chains and a specific section of signalling proteins called PDZ Domains. One of the aspects that we study here is the specificities of interactions between peptides and PDZ domains. It is well known that macromolecules such as proteins and enzymes interact in a specific manner with other macromolecules and biomolecules. What interested us over the course of the study are the constraints present in the peptide sequences due to the specificity of their interactions with PDZ domains. We will also have an occasion to understand similar constraints on the PDZ domain sequences. 
 
-	This report is organized as follows. After a brief introduction to the biological importance of PDZ Domains, we explain the experiments performed by \textbf{Insert reference here}. Using these experiments, Stifler et al created a model which is capable of predicting whether a peptide will bind to a PDZ domain given the sequence of the peptide. We shall explain the data that Stifler et al have provided. The first two models that we propose utilise the data provided by Stifler et al. 
+	This report is organized as follows. After a brief introduction to the biological importance of PDZ Domains, we explain the experiments performed by \cite{Stiffler364}. Using these experiments, Stiffler et al created a model which is capable of predicting whether a peptide will bind to a PDZ domain given the sequence of the peptide. We shall explain the data that Stiffler et al have provided. The first two models that we propose utilise the data provided by Stiffler et al. 
 
 	Once the data presented and the biological context established, we present a first model which seeks to understand the constraints imposed on the peptide sequences under the effect of mutations. We present the results derived from this model and discuss the limitations. A second improved model is then proposed which considers error rates as probabilities. We present some interesting observations on the basis of this model. In particular, we show how certain positions are particularly constrained over all peptides and present a simple way of the calculating the level of constraint. 
 
-	Finally, to render the study of peptide-PDZ domain specificity complete, we explain how we could integrate the PDZ Domain sequences into the modeling. This is done by a regression method called the \textit{Lasso}. We shall have the chance to present the lasso method in more detail in the relevant section. 
+	Finally, to render the study of peptide-PDZ domain specificity complete, we explain how we could integrate the PDZ Domain sequences into the modelling. This is done by a regression method called the \textit{Lasso}. We shall have the chance to present the lasso method in more detail in the relevant section. 
 
 	We conclude with a summary of our findings and possible directions of further improvements. 
 
 	\section{PDZ Domains}
 
-	Let us begin by explaining PDZ Domains, their importance, their structure and how they bind to other macromolecules. PDZ domains are short sections of proteins composed of 80-90 amino acids. PDZ Domains are usually found in signaling proteins where they regulate processes such as the separation of cell membranes. PDZ itself is an acronym for the first three letters of three proteins: Post-synaptic density protein (PSD95), Drosophilia disc large tumor suppressor (Dlg1) and zonula occludens-1 protein (zo-1)
+	Let us begin by explaining PDZ Domains, their importance, their structure and how they bind to other macromolecules. PDZ domains are short sections of proteins composed of 80-90 amino acids. PDZ Domains are usually found in signalling proteins where they regulate processes such as the separation of cell membranes. PDZ itself is an acronym for the first three letters of three proteins: Post-synaptic density protein (PSD95), Drosophila disc large tumour suppressor (Dlg1) and zonula occludens-1 protein (zo-1)
 
-	PDZ Domains are usually composed of 80-90 amino acids and many PDZ domains can be present within a single protein. Multiple domains within the same protein can have similar functions or different functions, each of which will bing to a different part of the target protein or a different protein altogether.
+	PDZ Domains are usually composed of 80-90 amino acids and many PDZ domains can be present within a single protein. Multiple domains within the same protein can have similar functions or different functions, each of which will bind to a different part of the target protein or a different protein altogether.
 
 	PDZ Domains always bind to the C-terminal of certain specific sections of the target proteins. The binding occurs within a binding pocket formed by the domain. The binding pocket are usually formed by the first 20 amino acids. A diagram showing the positions of the binding pocket as well as the target peptide are shown below. 
 
@@ -63,11 +64,11 @@
 	\textbf{Right}: The position of the PDZ-Domain within the parent protein is shown. The position marked with a little star shows that during the binding process there are other parts of the PDZ domain which are involved and not just the binding pocket}
 	\end{figure}	
 
-	\section{Explanation of the data of Stifler et al}
+	\section{Explanation of the data of Stiffler et al}
 
-	Now that we have given a small introduction to PDZ domains we shall explain the work done by Stifler and co-authors which we sought to extend and improve upon.
+	Now that we have given a small introduction to PDZ domains we shall explain the work done by Stiffler and co-authors which we sought to extend and improve upon.
 
-	The article that we have considered is titled "PDZ domain binding specificity is optimized across the mouse proteome". In this article, Michael Stifler and co-authors sought to characterize the selectivity between 157 PDZ domains and 217 target peptides found in the mouse proteome. To this end, they created a model which could predict whether a given PDZ domain would bind to a target peptide given the sequence of the target peptide.
+	The article that we have considered is titled "PDZ domain binding specificity is optimized across the mouse proteome". In this article, Michael Stiffler and co-authors sought to characterize the selectivity between 157 PDZ domains and 217 target peptides found in the mouse proteome. To this end, they created a model which could predict whether a given PDZ domain would bind to a target peptide given the sequence of the target peptide.
 
 	In their model, the last 5 positions near the C-terminal of the target peptide are considered. The model can be summarized in the following simple equation: 
 
@@ -80,7 +81,7 @@
 
 	The data used to fit the model was obtained by protein micro-array assays. Each PDZ Domain-peptide pair under consideration was verified for binding during the experiment. The researchers were able to model 74 domains among the 157 domains experimented upon. The experimental results of these experiments are available to us in the form of an interaction matrix which tells us whether a PDZ domain $i$ binds to a target peptide $j$ or not. 
 
-	For each of the 74 domains successfully modeled, we also possess the parameters $\theta_{i,p,q}$ allowing us to test the model on newer peptide sequences. We also possess the error rates for the model. These are given in terms of false positive and false negative rates. These error rates interpreted as empirical probabilities were used in one of the models presented later in the report.
+	For each of the 74 domains successfully modelled, we also possess the parameters $\theta_{i,p,q}$ allowing us to test the model on newer peptide sequences. We also possess the error rates for the model. These are given in terms of false positive and false negative rates. These error rates interpreted as empirical probabilities were used in one of the models presented later in the report.
 
 	\section{Questions asked and answered}
 
@@ -88,9 +89,9 @@
 
 	Firstly, we sought to understand the effect of mutations on the specificity of domain-peptide interactions. It is well known that PDZ domains bind to only certain specific target peptides and not to others. What if the target peptide suffered a point mutation? Will the PDZ domain still bind to the peptide? 
 
-	A related question concerns the level of constraint imposed on the peptides due to the specificity of their interactions with PDZ domains. If the peptide were to suffer a point mutation and if it continued to bind to the PDZ domain, it then becomes interesting to consider the extent to which the peptide can undergo mutations before it stops binding to the peptide. Inversely, if the peptide doesn't accept many mutations, it is again interesting to analyze whether there are certain positions or amino acids which impose constraints on the sequence. 
+	A related question concerns the level of constraint imposed on the peptides due to the specificity of their interactions with PDZ domains. If the peptide were to suffer a point mutation and if it continued to bind to the PDZ domain, it then becomes interesting to consider the extent to which the peptide can undergo mutations before it stops binding to the peptide. Inversely, if the peptide doesn't accept many mutations, it is again interesting to analyse whether there are certain positions or amino acids which impose constraints on the sequence. 
 
-	All such questions were modeled, analyzed and understood in this project.
+	All such questions were modelled, analysed and understood in this project.
 
 \pagebreak
 \part{First Model}
@@ -127,7 +128,7 @@
 	\item 
 	We then compare the energies, as defined in \eqref{model_1_energy}, between two sequences $\mathrm{E}_{old}$ and $\mathrm{E}_{new}$. 
 	\item 
-	We then use the Boltzmann factor to attribute probabilities to each of the energies  $\mathrm{E}_{old}$ and $\mathrm{E}_{new}$, where the boltzmann factor is 
+	We then use the Boltzmann factor to attribute probabilities to each of the energies  $\mathrm{E}_{old}$ and $\mathrm{E}_{new}$, where the Boltzmann factor is 
 	\begin{align}
 	\label{boltz}
 	p(E) \propto e^{-\beta E}
@@ -207,11 +208,11 @@
 
  	This behavior is related to the particular nature of the peptide \textbf{APC} as well as the errors inherent in the model. We ascribe this behavior to the erroneous predictions of the model which needs to be accounted for in a newer model. This is the subject of the next section. 
 \pagebreak
-\part{Improvements over first model: Bayesian Modeling}
+\part{Improvements over first model: Bayesian Modelling}
 	
 	The case of the peptide \textbf{APC} tells us that we cannot consider all the predictions of the model to be true and we need a way to integrate the error rates which are present in any predictive model. To this end, we propose a refined model based on conditional probabilities.
 \section{Error rates as probabilities}
-	Any predictive model is seldom 100\% perfect and there are always cases where the predictions of the model are in contradiction with the experimental facts. This is the case with the model used by Stifler et al. The information concerning the error rates for their model is known to us and thus we can integrate this extra information to refine our model. 
+	Any predictive model is seldom 100\% perfect and there are always cases where the predictions of the model are in contradiction with the experimental facts. This is the case with the model used by Stiffler et al. The information concerning the error rates for their model is known to us and thus we can integrate this extra information to refine our model. 
 
 	To do this, we need to understand the error rates that we possess. These error rates are reported as true positive rate, false positive rate, true negative and false negative rates. To be more precise, considering that the model predicts binary values 0(False) or 1(True):
 
@@ -226,11 +227,11 @@
 	\textbf{False Negative Rate(FN)}: $\frac{\text{Number of events predicted to be False}}{\text{Number of events actually True}}$
 	\end{enumerate}
 
-	For the model proposed by Stifler, these values are given as:
+	For the model proposed by Stiffler, these values are given as:
 
 \begin{table}[]
 \centering
-\caption{Error rates from Stifler et al.}
+\caption{Error rates from Stiffler et al.}
 \label{tab_error_rate}
 \begin{tabular}{@{}ll@{}}
 \toprule
@@ -354,7 +355,7 @@ As a first indication of the dependence of the behavior of peptides as a functio
 We remark that the entropy varies inversely with an increase in binding number. This shows that higher the binding number, higher are the constraints present over the natural sequence of the peptide. Thus, we are led to a closer analysis of the position wise entropies $S^{l}_{k}$for different values of the binding number. 
 
 \item 
-We know that if $S^{l}_{k}=0$ for any position $k$ then it implies that the position $k$ is immune to mutations. After dividing the peptides by their binding numbers, we searched for any peptides which showed such behavior. Remarkably and contrary to what we would have believed initially, such peptides are present over a large range of binding numbers: we would accept that a peptide with bn=25 would have some position constrained owing to its extremely low entropy value. However, we also observed constraints for binding numbers as low as bn=3. The peptide with bn=3 showing such a behavior is \textbf{NMDAR2C}
+We know that if $S^{l}_{k}=0$ for any position $k$ then it implies that the position $k$ is immune to mutations. After dividing the peptides by their binding numbers, we searched for any peptides which showed such behaviour. Remarkably and contrary to what we would have believed initially, such peptides are present over a large range of binding numbers: we would accept that a peptide with bn=25 would have some position constrained owing to its extremely low entropy value. However, we also observed constraints for binding numbers as low as bn=3. The peptide with bn=3 showing such a behaviour is \textbf{NMDAR2C}
 
 \begin{figure}[!h]
 \label{bn_3_freq_matrix}
@@ -394,7 +395,7 @@ From the mutual information matrix, we see that positions numbered 2 and 3 might
 
 \item 
 
-From the frequency matrix we can compute the most probable sequence. This sequence is constructed by computing the amino acid with the highest probability of occurrence at any given position. We present here the most probable sequences for each of the 18 peptides which showed highly constrained behavior during the MC runs. 
+From the frequency matrix we can compute the most probable sequence. This sequence is constructed by computing the amino acid with the highest probability of occurrence at any given position. We present here the most probable sequences for each of the 18 peptides which showed highly constrained behaviour during the MC runs. 
 
 \begin{table}[!h]
 \centering
@@ -438,7 +439,7 @@ Finally, we attempted to see whether by the removal of one PDZ domain would chan
 
 \begin{enumerate} 
 \item 
-The peptide sequences considered here are made up only 5 amino acids. Thus, our modeling is necessarily local in nature and we are not aware of the relevant steric and chemical effects that might influence the binding between peptides and PDZ-domains. Furthermore, we know that the binding pocket is not the only part of the PDZ domain which is implicated in the binding, other positions far away from the binding pocket are involved too. Thus, by considering only those sections of the target molecules which are present near the binding pocket, our analysis can only be limited. 
+The peptide sequences considered here are made up only 5 amino acids. Thus, our modelling is necessarily local in nature and we are not aware of the relevant steric and chemical effects that might influence the binding between peptides and PDZ-domains. Furthermore, we know that the binding pocket is not the only part of the PDZ domain which is implicated in the binding, other positions far away from the binding pocket are involved too. Thus, by considering only those sections of the target molecules which are present near the binding pocket, our analysis can only be limited. 
 
 \item 
 There are many peptides for whom we didn't see any constraints whatsoever. This however should not mean that constraints are completely absent from these peptides. Far from it, this serves as a reminder of the limited scope of our study. With only 74 domains to play with, we cannot generalize the behavior of the peptides that we studied. 
@@ -533,15 +534,15 @@ In the next figure we plot the test error for values of $n$ from 10 to 14. We ob
 \centering 
 \label{coefficient_matrix}
 \includegraphics[width=10cm]{Images/coefficient_matrix_10.png}
-\caption{The matrix of coefficients fit to the data by the lasso method. Here the size of the sequence taken is 10. The interpretation of different parameters isnt very clear, especially since the matrix is sparse}
+\caption{The matrix of coefficients fit to the data by the lasso method. Here the size of the sequence taken is 10. The interpretation of different parameters isn't very clear, especially since the matrix is sparse}
 \end{figure}
 
-Finally we analyse the lasso parameters that we retrieved from fitting the model to the data. For a sequence of length 10, the matrix of parameters fit to the data is a matrix of dimensions $100 \times 210$ which is a relatively sparse matrix. Furthermore, the interpretation of each of the parameters is difficult, especially since we are interested in the correlations between positions in the peptide sequence and positions in the PDZ sequence. Thus to facilitate our understanding, we undertake a pooling operation: we sum the absolute values for each $20 \times 21 $ block in the coefficient matrix. This pooling operation provides a nice, visual way of representing the details of the coefficient matrix. If some of the entries in the pooled matrix are zero, then we can be sure that the corresponding submatrice in the coefficient matrix were zero, and thus are unimportant for predicting binding affinities between a peptide and a PDZ domain. 
+Finally we analyse the lasso parameters that we retrieved from fitting the model to the data. For a sequence of length 10, the matrix of parameters fit to the data is a matrix of dimensions $100 \times 210$ which is a relatively sparse matrix. Furthermore, the interpretation of each of the parameters is difficult, especially since we are interested in the correlations between positions in the peptide sequence and positions in the PDZ sequence. Thus to facilitate our understanding, we undertake a pooling operation: we sum the absolute values for each $20 \times 21 $ block in the coefficient matrix. This pooling operation provides a nice, visual way of representing the details of the coefficient matrix. If some of the entries in the pooled matrix are zero, then we can be sure that the corresponding sub-matrix in the coefficient matrix were zero, and thus are unimportant for predicting binding affinities between a peptide and a PDZ domain. 
 
 
 \item 
 
-Observing the matrix below, we remark that the maximum values in the pooled matrix correspond to the positions (1,2) and (3,0). Let us have a closer look at the submatrices that contribute to these entries. 
+Observing the matrix below, we remark that the maximum values in the pooled matrix correspond to the positions (1,2) and (3,0). Let us have a closer look at the sub-matrices that contribute to these entries. 
 
 \begin{figure}[!h]
 \centering 
@@ -550,31 +551,31 @@ Observing the matrix below, we remark that the maximum values in the pooled matr
 \caption{The matrix received after pooling the entries in the complete coefficient matrix. This provides a better overview of the structure of the coefficient matrix and also provides us information on the relevant terms in the coefficient matrix}
 \end{figure} 
 
-The first submatrix that we analyse is the matrix corresponding to position 1 in the peptide (on the actual sequence, we need to add +1 since the numbering here follows the notation adopted in programming languages) and 2 in the PDZ sequence. We observe that the important coefficients correspond to the amino acid \emph{Isoleucine} on the domain at position 2 while the most important amino acids on the peptide are similar amino acids like \emph{Alanine, Leucine and Isoleucine}. It is quite remarkable that even though it is \emph{Leucine} which is most common at position 2 in the multiple sequence alignment of the domain sequences, it is \emph{Isoleucine} which has non-zero coefficients in our model. 
+The first sub-matrix that we analyse is the matrix corresponding to position 1 in the peptide (on the actual sequence, we need to add +1 since the numbering here follows the notation adopted in programming languages) and 2 in the PDZ sequence. We observe that the important coefficients correspond to the amino acid \emph{Isoleucine} on the domain at position 2 while the most important amino acids on the peptide are similar amino acids like \emph{Alanine, Leucine and Isoleucine}. It is quite remarkable that even though it is \emph{Leucine} which is most common at position 2 in the multiple sequence alignment of the domain sequences, it is \emph{Isoleucine} which has non-zero coefficients in our model. 
 
 \begin{figure}[!h]
 \centering
 \label{submatrix_12}
 \includegraphics[width=7cm]{Images/submatrix_12.png}
-\caption{The terms making up the submatrix (1,2) in the complete coefficient matrix}
+\caption{The terms making up the sub-matrix (1,2) in the complete coefficient matrix}
 \end{figure}
 
-Let us now consider the case of the submatrix (3,0). Here the amino acid \emph{Phenylalanine} (F) on the PDZ domain sequence is correlated with \emph{Tyrosine} (Y) on the peptide sequence. Again it is interesting to see that \emph{Phenylalanine} is not the most common amino acid at position 0 in the multiple sequence alignment. Let us now turn our attention to the most important submatrix for our purposes
+Let us now consider the case of the sub-matrix (3,0). Here the amino acid \emph{Phenylalanine} (F) on the PDZ domain sequence is correlated with \emph{Tyrosine} (Y) on the peptide sequence. Again it is interesting to see that \emph{Phenylalanine} is not the most common amino acid at position 0 in the multiple sequence alignment. Let us now turn our attention to the most important sub-matrix for our purposes
 
 \begin{figure}[!h]
 \centering
 \label{submatrix_30}
 \includegraphics[width=7cm]{Images/submatrix_30.png}
-\caption{The terms making up the submatrix (3,0) in the complete coefficient matrix}
+\caption{The terms making up the sub-matrix (3,0) in the complete coefficient matrix}
 \end{figure}
 
-In the sub-matrix (4,3) we see a remarkable thing happening: the only amino acid which counts on the PDZ domain sequence is \emph{Glycine}. If we look at the multiple sequence alignment, we see that \emph{Glycine} is found at the position number 3 in all the PDZ domains. Thus it isnt a surprise that non-negligeable terms in the coefficient matrix exist for \emph{Glycine}. What is perhaps more interesting is that apart from the last position on the peptide sequence, none of the other positions have comparable coefficients in the pooled matrix. If we remember from our analyse on peptide sequences, we had observed that there were no constraints on the last position of the peptide sequence. We can now understand this phenomena by the fact that for peptide-domain binding it is the position 3 (or 4 on the actual sequence) on the PDZ domain sequence which is important. Thus, the constraint does exist, but not on the peptide but on the PDZ domain sequence since it is conserved through all the domains. What is also perhaps interesting to observe is the quasi-uniformity of the coefficients for most of the amino acids on the peptide sequence. 
+In the sub-matrix (4,3) we see a remarkable thing happening: the only amino acid which counts on the PDZ domain sequence is \emph{Glycine}. If we look at the multiple sequence alignment, we see that \emph{Glycine} is found at the position number 3 in all the PDZ domains. Thus it isn't a surprise that non-negligible terms in the coefficient matrix exist for \emph{Glycine}. What is perhaps more interesting is that apart from the last position on the peptide sequence, none of the other positions have comparable coefficients in the pooled matrix. If we remember from our analyse on peptide sequences, we had observed that there were no constraints on the last position of the peptide sequence. We can now understand this phenomena by the fact that for peptide-domain binding it is the position 3 (or 4 on the actual sequence) on the PDZ domain sequence which is important. Thus, the constraint does exist, but not on the peptide but on the PDZ domain sequence since it is conserved through all the domains. What is also perhaps interesting to observe is the quasi-uniformity of the coefficients for most of the amino acids on the peptide sequence. 
 
 \begin{figure}[!h]
 \centering
 \label{submatrix_43}
 \includegraphics[width=7cm]{Images/submatrix_43.png}
-\caption{The terms making up the submatrix (4,3) in the complete coefficient matrix}
+\caption{The terms making up the sub-matrix (4,3) in the complete coefficient matrix}
 \end{figure}
 
 Here we have seen a remarkable case of the existence of constraints not on the peptide sequence but on the domain sequence. We thus conclude that it is not just the peptide sequence that is important in determining PDZ Domain-Peptide binding specificity but also the sequence of the PDZ domain itself. 
@@ -585,7 +586,7 @@ Here we have seen a remarkable case of the existence of constraints not on the p
 
 \begin{itemize}
 \item 
-We have only considered short sections of the PDZ Domain sequence. Thus our model has still remained relatively local in its scope. By restricing ourselves to about the first 10 amino acids in the PDZ Domain sequence, we have actually not ventured out of the binding pocket. Thus the model is limited because it does not take into account the influence of the amino acids further in the PDZ domain sequence. 
+We have only considered short sections of the PDZ Domain sequence. Thus our model has still remained relatively local in its scope. By restricting ourselves to about the first 10 amino acids in the PDZ Domain sequence, we have actually not ventured out of the binding pocket. Thus the model is limited because it does not take into account the influence of the amino acids further in the PDZ domain sequence. 
 
 \item 
 The model proposed here is a linear model and thus will not be able to capture the complete richness of the interactions between a target peptide and a particular PDZ domain. Furthermore, we have seen the applicability of the model depends closely on the length of the sequence concerned. Thus if are to complete integrate the complete sequence of the domain, then it would be a difficult task. 
@@ -594,7 +595,12 @@ The model proposed here is a linear model and thus will not be able to capture t
 For lack of time, an analysis of the effects of mutations on the PDZ domain sequences has not been conducted. 
 \end{itemize}
 
-\nocite{*}
-\printbibliography
+\newpage
+\begin{thebibliography}{}
+\bibitem{Stiffler364}Stiffler, Michael A. and Chen, Jiunn R. and Grantcharova, Viara P. and Lei, Ying and Fuchs, Daniel and Allen, John E. and Zaslavskaia, Lioudmila A. and MacBeath, Gavin, \textit{PDZ Domain Binding Selectivity Is Optimized Across the Mouse Proteome}, Science, Vol. 317, No. 5836, 364-369, 2007.
+\bibitem{mclaughlin2012spatial}McLaughlin Jr, Richard N and Poelwijk, Frank J and Raman, Arjun and Gosal, Walraj S and Ranganathan, Rama, \textit{The spatial architecture of protein function and adaptation}, Nature, Vol. 491, No. 7422, 138-142, 2012.
+\bibitem{tibshirani1996regression} Tibshirani,Robert \textit{Regression shrinkage and selection via the lasso}, Journal of the Royal Statistical Society Series B, 267-288, 1996.
+\bibitem{chen2008predicting}Chen, Jiunn R and Chang, Bryan H and Allen, John E and Stiffler, Michael A and MacBeath, Gavin, \textit{Predicting PDZ domain--peptide interactions from primary sequences}, Nature Biotechnology, Vol. 26, No. 9, 1041-1045, 2008.
+\end{thebibliography}
 
 \end{document}
