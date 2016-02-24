@@ -54,14 +54,14 @@
 
 	PDZ Domains are usually composed of 80-90 amino acids and many PDZ domains can be present within a single protein. Multiple domains within the same protein can have similar functions or different functions, each of which will bind to a different part of the target protein or a different protein altogether.
 
-	PDZ Domains always bind to the C-terminal of certain specific sections of the target proteins. The binding occurs within a binding pocket formed by the domain. The binding pocket are usually formed by the first 20 amino acids. A diagram showing the positions of the binding pocket as well as the target peptide are shown below. 
-
+	PDZ Domains always bind to the C-terminal of certain specific sections of the target proteins. The binding occurs within a binding pocket formed by the domain. The binding pocket are usually formed by the first 20 amino acids. A diagram showing the positions of the binding pocket as well as the target peptide are shown above. 
+	
 	\begin{figure}
 	\label{PDZ_Positions}
 	\centering
 	\includegraphics[width=10cm]{Images/pdz.jpg}
 	\caption{\textbf{Left}: We show the PDZ domain (in blue) with the target peptide (yellow). The C-terminal of the target peptide is numbered 0 whilst the preceding amino acids are numbered in descending order. 
-	\textbf{Right}: The position of the PDZ-Domain within the parent protein is shown. The position marked with a little star shows that during the binding process there are other parts of the PDZ domain which are involved and not just the binding pocket}
+	\textbf{Right}: The position of the PDZ-Domain within the parent protein is shown.}
 	\end{figure}	
 
 	\section{Explanation of the data of Stiffler et al}
@@ -77,7 +77,7 @@
 	\phi_{i} = \sum_{p,q} A_{p,q} \theta_{i,p,q} > \tau_{i}
 	\end{align}
 
-	where for a given PDZ Domain $i$, we can calculate a binding score $\phi_{i}$. $A$ is an indicator of the peptide sequence : $A_{p,q} =1$ if the amino acid at position $p$ of the peptide is $q$ and $A_{p,q} =0$ otherwise. The numbers $\theta_{i,p,q}$ are the parameters that need to be fit to the experimental data. $\tau_{i}$ is a scoring threshold which is different for each domain $i$. The values $\theta_{i,p,q}$ are to be interpreted in the following fashion: $\theta_{i,p,q} > 0$ if the PDZ Domain $i$ prefers amino acid $q$ at position $p$ more than the other PDZ domains, negative if it prefers it less, and 0 if it has no bias relative to the other domains. $\tau_{i}$ is defined as the $m$th percentile of the $\phi_{i}$'s for all the peptides in the model that bound to the domain $i$. To make predictions using this model, it suffices to know the sequence of the target peptide and compute $\phi_{i} - \tau_{i}$ for the domain $i$. If the domain binds with the target protein then this number is positive and negative otherwise. 
+	where for a given PDZ Domain $i$ and for a given peptide whose sequence is encoded in the A matrix, we can calculate a binding score $\phi_{i}$. $A$ is an indicator of the peptide sequence : $A_{p,q} =1$ if the amino acid at position $p$ of the peptide is $q$ and $A_{p,q} =0$ otherwise. The numbers $\theta_{i,p,q}$ are the parameters that need to be fit to the experimental data. $\tau_{i}$ is a scoring threshold which is different for each domain $i$. The values $\theta_{i,p,q}$ are to be interpreted in the following fashion: $\theta_{i,p,q} > 0$ if the PDZ Domain $i$ has a tendency to bind peptide having amino acid $q$ at position $p$ more than other PDZ domains, negative if it prefers less and 0 if the presence of amino acid $q$ in position $p$ does not affect binding. $\tau_{i}$ is defined as the $m$th percentile of the $\phi_{i}$'s for all the peptides in the model that bound to the domain $i$. To make predictions using this model, it suffices to know the sequence of the target peptide and compute $\phi_{i} - \tau_{i}$ for the domain $i$. If the domain binds with the target protein then this number is positive and negative otherwise. 
 
 	The data used to fit the model was obtained by protein micro-array assays. Each PDZ Domain-peptide pair under consideration was verified for binding during the experiment. The researchers were able to model 74 domains among the 157 domains experimented upon. The experimental results of these experiments are available to us in the form of an interaction matrix which tells us whether a PDZ domain $i$ binds to a target peptide $j$ or not. 
 
@@ -90,6 +90,8 @@
 	Firstly, we sought to understand the effect of mutations on the specificity of domain-peptide interactions. It is well known that PDZ domains bind to only certain specific target peptides and not to others. What if the target peptide suffered a point mutation? Will the PDZ domain still bind to the peptide? 
 
 	A related question concerns the level of constraint imposed on the peptides due to the specificity of their interactions with PDZ domains. If the peptide were to suffer a point mutation and if it continued to bind to the PDZ domain, it then becomes interesting to consider the extent to which the peptide can undergo mutations before it stops binding to the peptide. Inversely, if the peptide doesn't accept many mutations, it is again interesting to analyse whether there are certain positions or amino acids which impose constraints on the sequence. 
+	
+	These domains are found in many proteins within the same organism and for the purposes of signalling they need to bind specifically with many ligands. The question that we ask in this work is how this can be organized and maintained under random mutations introduced over the course of evolution. 
 
 	All such questions were modelled, analysed and understood in this project.
 
@@ -97,14 +99,14 @@
 \part{First Model}
 	\section{Features of the model}
 
-	Our first model sought to study the effects of the introduction of mutations in the target peptide sequences conserving all the while the interaction matrix. The mutations considered were point mutations whereby one amino acid at a particular position was muted into another one. To this end, we define a parameter $\alpha$ which corresponds to binding or non-binding for the domain-peptide pair in the interaction matrix, $\alpha=1$ if PDZ domain $i$ binds to peptide $j$ and $\alpha = -1$ otherwise. Since we want to introduce mutations that conserve the interaction matrix, we begin with the natural sequence of a given peptide and introduce mutations in the natural sequence. 
+	Our first model sought to study the effects of the introduction of mutations in the target peptide sequences conserving all the while the interaction matrix. The mutations considered were point mutations whereby one amino acid at a particular position was muted into another one. To this end, we define a parameter $\alpha$ which corresponds to binding or non-binding for the domain-peptide pair in the interaction matrix, $\alpha=1$ if PDZ domain $i$ binds to peptide $l$ and $\alpha = -1$ otherwise. Since we want to introduce mutations that conserve the interaction matrix, we begin with the natural sequence of a given peptide and introduce mutations in the natural sequence. 
 
 	Now, we start from a natural sequence of the peptide $l$. Once a point mutation has been introduced in the sequence, we calculate the binding score $\phi$ for this new sequence using \eqref{model_base}. We then define a probability of binding and non-binding in the following manner:
 
 	\begin{align}
 	\label{model_1_naive}
-	p(\alpha_{i,l}=1) & = \frac{1}{1+e^{-\phi}} \\
-	p(\alpha_{i,l}=-1) & = \frac{1}{1+e^{\phi}}
+	p(\alpha_{i,l}=1) & = \frac{1}{1+e^{-\phi_{i,l}}} \\
+	p(\alpha_{i,l}=-1) & = \frac{1}{1+e^{\phi_{i,l}}}
 	\end{align}
 
 	for the domain $i$ and peptide $l$. Here we continue to use the label $l$ for the peptide even though the \emph{new} binding score $\phi$ is calculated for a mutated sequence and not the natural sequence for the peptide $l$
@@ -161,7 +163,7 @@
  	\label{hist_ini_energies}
  	\centering
  	\includegraphics[width=8cm]{Images/hist_ini_energies.png}
- 	\caption{The distribution of initial energies of the peptides. We observe that the energies are well spread out, with the majority in the range from 0-5 and the maximum energy close to 100}
+ 	\caption{The distribution of initial energies of the peptides. We observe that the energies are well spread out, with the majority in the range from 0-5 and the maximum energy close to 100. The y-axis is the total number of peptides in our data set i.e. 217}
  	\end{figure}
 
  	We compare this distribution to the distribution of energies of those sequences which were accepted during the Monte Carlo runs
@@ -170,10 +172,10 @@
  	\label{hist_final_energies} 
  	\centering
  	\includegraphics[width=8cm]{Images/hist_fin_energies.png}
- 	\caption{Here the spread is reduced. The maximum is close to 19.}
+ 	\caption{Here the spread is reduced. The maximum is close to 19. Since we take the distribution over all the peptides sequences accepted over the course of the mutations, we normalize the values on the y-axis, which thus represents the proportion of peptides within a particular band of energy.}
  	\end{figure} 
 
- 	We see a reduction by a factor of 5 in the spread of energies before and after the Monte Carlo runs.
+ 	We see a reduction by a factor of 5 in the spread of energies before and after the Monte Carlo runs. We thus see that the model is not performing well at all because a drastic reduction like this implies that the peptides show tremendous alacrity for accepting mutations. We shall discuss the related limitations of the model and improve upon the model in the following sections. 
 
  	The next quantity that we considered was the probability of having a given amino acid at any position for any peptide. To this end, we computed the frequency matrix which tells us how often a given amino acid was accepted during the Monte Carlo runs. 
 
@@ -205,16 +207,24 @@
  	\includegraphics[width=7cm]{Images/apc_evol.png} 
  	\caption{The evolution of the energies of the mutated sequences of \textbf{APC} during one MC cycle. Out of 1000 mutations possible, it accepts close to 530 mutations, showing a great susceptibility to undergo mutations. Red line shows the natural energy.}
  	\end{figure} 
-
- 	This behavior is related to the particular nature of the peptide \textbf{APC} as well as the errors inherent in the model. We ascribe this behavior to the erroneous predictions of the model which needs to be accounted for in a newer model. This is the subject of the next section. 
-\pagebreak
+ 	
+ 	\begin{figure}[!h]
+ 	\label{apc_evol_zoom}
+ 	\centering
+ 	\includegraphics[width=7cm]{Images/apc_evol_zoom.png} 
+ 	\caption{The evolution of the energy of APC in the early stages of the MC run. We can clearly see the extreme drop in the energy of the peptide.}
+ 	\end{figure} 
+ 	
+ 	This behavior is related to the particular nature of the peptide \textbf{APC} as well as the errors inherent in the model. We ascribe this behavior to the erroneous predictions of the model which needs to be accounted for in a newer model. This is the subject of the next section.
+ 	
+	
 \part{Improvements over first model: Bayesian Modelling}
 	
 	The case of the peptide \textbf{APC} tells us that we cannot consider all the predictions of the model to be true and we need a way to integrate the error rates which are present in any predictive model. To this end, we propose a refined model based on conditional probabilities.
 \section{Error rates as probabilities}
 	Any predictive model is seldom 100\% perfect and there are always cases where the predictions of the model are in contradiction with the experimental facts. This is the case with the model used by Stiffler et al. The information concerning the error rates for their model is known to us and thus we can integrate this extra information to refine our model. 
 
-	To do this, we need to understand the error rates that we possess. These error rates are reported as true positive rate, false positive rate, true negative and false negative rates. To be more precise, considering that the model predicts binary values 0(False) or 1(True):
+	To do this, we need to understand the error rates that we possess. These error rates are reported as true positive rate, false positive rate, true negative and false negative rates. To be more precise, considering that the model predicts binary values -1(False) or 1(True):
 
 	\begin{enumerate}
 	\item 
@@ -227,9 +237,19 @@
 	\textbf{False Negative Rate(FN)}: $\frac{\text{Number of events predicted to be False}}{\text{Number of events actually True}}$
 	\end{enumerate}
 
-	For the model proposed by Stiffler, these values are given as:
+The way these error rates are defined reminds us of the definition of conditional probabilities. And thus, we can interpret these error rates as conditional probabilities. If the model makes a prediction on a new piece of data, these rates then tell us with what probability the experimental value was +1 or -1. Thus we have, 
+\begin{align}
+\label{inter_cond}
+\text{TP} &= \mathbb{P}(\text{Model} = 1 | \text{Experiment} = 1) \\
+\text{FN} &= \mathbb{P}(\text{Model} = -1 | \text{Experiment} = 1) \\
+\text{FP} &= \mathbb{P}(\text{Model} = 1 | \text{Experiment} = -1) \\
+\text{TN} &= \mathbb{P}(\text{Model} = -1 | \text{Experiment} = -1)
+\end{align}
 
-\begin{table}[]
+
+	For the model proposed by Stiffler, the error rate values are given as:
+
+\begin{table}[!h]
 \centering
 \caption{Error rates from Stiffler et al.}
 \label{tab_error_rate}
@@ -243,16 +263,7 @@ TN         & 85\%  \\ \bottomrule
 \end{tabular}
 \end{table}
 
-The way these error rates are defined reminds us of the definition of conditional probabilities. And thus, we can interpret these error rates as conditional probabilities. If the model makes a prediction on a new piece of data, these rates then tell us with what probability the experimental value was +1 or -1. Thus we have, 
-\begin{align}
-\label{inter_cond}
-\text{TP} &= \mathbb{P}(\text{Model} = 1 | \text{Experiment} = 1) \\
-\text{FN} &= \mathbb{P}(\text{Model} = -1 | \text{Experiment} = 1) \\
-\text{FP} &= \mathbb{P}(\text{Model} = 1 | \text{Experiment} = -1) \\
-\text{TN} &= \mathbb{P}(\text{Model} = -1 | \text{Experiment} = -1)
-\end{align}
-
-We can then recast Table~\ref{tab_error_rate} in the following manner:
+By interpreting these error rates as conditional probabilities, we can recast Table~\ref{tab_error_rate} in the following manner:
 
 \begin{table}[!h]
 \centering
@@ -355,7 +366,7 @@ As a first indication of the dependence of the behavior of peptides as a functio
 We remark that the entropy varies inversely with an increase in binding number. This shows that higher the binding number, higher are the constraints present over the natural sequence of the peptide. Thus, we are led to a closer analysis of the position wise entropies $S^{l}_{k}$for different values of the binding number. 
 
 \item 
-We know that if $S^{l}_{k}=0$ for any position $k$ then it implies that the position $k$ is immune to mutations. After dividing the peptides by their binding numbers, we searched for any peptides which showed such behaviour. Remarkably and contrary to what we would have believed initially, such peptides are present over a large range of binding numbers: we would accept that a peptide with bn=25 would have some position constrained owing to its extremely low entropy value. However, we also observed constraints for binding numbers as low as bn=3. The peptide with bn=3 showing such a behaviour is \textbf{NMDAR2C}
+We know that if $S^{l}_{k}=0$ for any position $k$ then it implies that the position $k$ is neutral to mutations i.e. tolerates any mutation. After dividing the peptides by their binding numbers, we searched for any peptides which showed such behaviour. Remarkably and contrary to what we would have believed initially, such peptides are present over a large range of binding numbers: we would accept that a peptide with bn=25 would have some position constrained owing to its extremely low entropy value. However, we also observed constraints for binding numbers as low as bn=3. The peptide with bn=3 showing such a behaviour is \textbf{NMDAR2C}
 
 \begin{figure}[!h]
 \label{bn_3_freq_matrix}
@@ -370,7 +381,7 @@ After having observed the presence of constraints, we wanted to see whether any 
 
 \begin{equation}
 \label{mi_definition}
-\mathrm{MI}_{i,j} = \sum_{a=0, b=0}^{a=20, b=20} p_{i=a, j=b} \mathrm{log}(\frac{p_{i=a,j=b}}{p_{i,a} p_{j,b}})
+\mathrm{MI}_{i,j} = \sum_{a=1, b=1}^{a=20, b=20} p_{i=a, j=b} \mathrm{log}(\frac{p_{i=a,j=b}}{p_{i,a} p_{j,b}})
 \end{equation}
 
 where $p_{i=a,j=b}$ is the joint probability of finding the amino acids $a$ and $b$ at positions $i$ and $j$ respectively and $p_{i,a}$ is the probability of finding amino acid $a$ at position $i$. The mutual information intuitively tells us how much information is considered in the variable X about the variable Y. In our case, by computing the mutual information matrix, we would be able to determine the correlated positions in the peptide sequence. 
@@ -399,7 +410,7 @@ From the frequency matrix we can compute the most probable sequence. This sequen
 
 \begin{table}[!h]
 \centering
-\caption{Peptides with constrained positions}
+\caption{Peptides with constrained positions. Here MPS denotes the most probable sequence computed from the frequency matrix. The Hamming distance is defined as the number of positions at which the natural sequence differs from the most probable sequence.}
 \label{Zero_entopy peptides}
 \begin{tabular}{lllll}
 \hline
@@ -470,6 +481,8 @@ However, we can recast this equation in the Lagrangian form as follows:
 
 Here, $y$ is the output of the model and $X$ is the data. In our case, the output variables are the $\theta_{i,p,q}$ for each of the domains $i$ and the $X$ correspond to a matrix of dimensions $n \times 20$ where $n$ is the length of the PDZ domain sequence that we consider. The matrix $X$ is defined as follows: $X_{n,a} = 1$ if the amino acid $a$ is at position $n$ and $X_{n,a} = 0$ otherwise. 
 
+A word on the parameter $\lambda$. It is a free parameter in our model and depending on the value of $\lambda$ chosen, we can tune the level of sparsity of the coefficients $\beta$. Two extreme cases are possible, either $\lambda \rightarrow \infty$ or $\lambda \rightarrow 0$. In the former case, the coefficents will become sparser till all the coefficents are set to zero. A high values of $\lambda$ then implies that we will have few explanatory variables and important variables may be left out of the model. On the other extreme if $\lambda \rightarrow 0$, then we fall back into the case of ordinary least squares regression where none of the coefficients are zero. We are thus required to carefully choose the value of the parameter $\lambda$ so as to optimise the predictive power of the model. 
+
 For a practical implementation, we considered 70 domains for whom we could find the complete sequence. For each of the domains the $\theta_{i,p,q}$ were collapsed into a vector of dimensions $100 \times 1$, and the $X^{i}$ were collapsed into a vector of size $ (n \times 20) \times 1$. Thus, the output variable $y$ had dimensions $70 \times 100$ while $X$ had dimensions $70 \times (n\times 20)$. The lasso was finally implemented with the open source library scikit-learn in Python. 
 
 \section{Results}
@@ -495,7 +508,7 @@ We remark that the training error for different values of $n$ has the same behav
 \centering 
 \label{overfitting}
 \includegraphics[width=7cm]{Images/overfitting.jpeg}
-\caption{The evolution of training and test error for a predictive model.}
+\caption{The evolution of training and test error for a predictive model. Here lambda stands for the parameter $\lambda$ that we want to optimise for. In general, $\lambda$ stands for any optimising factor.}
 \end{figure} 
 
 We see that if the validation or test error increases while the training error decreases then a case of overfitting might have occurred. However, the best predictive and fitted model would be where the validation error has its global minimum. 
